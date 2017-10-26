@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "975835394607",
+    "firebase_url": "https://discussx-remastered.firebaseio.com",
+    "project_id": "discussx-remastered",
+    "storage_bucket": "discussx-remastered.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:975835394607:android:4e27ce8956894140",
+        "android_client_info": {
+          "package_name": "com.fyp.discussx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "975835394607-89om54g7mqoctmvnrbq07ivtiov8g7v1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fyp.discussx",
+            "certificate_hash": "1e612613edd69d8578cd10d1ae6521ff5b6a2aee"
+          }
+        },
+        {
+          "client_id": "975835394607-nr6id4fjhtuu0c08can71cqvjq5ervjg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDg52SJOd-C17-dCLJu_jJdiY2k21vANqk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "975835394607-nr6id4fjhtuu0c08can71cqvjq5ervjg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
