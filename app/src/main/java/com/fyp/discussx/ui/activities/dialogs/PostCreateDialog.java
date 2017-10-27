@@ -47,7 +47,7 @@ public class PostCreateDialog extends DialogFragment implements View.OnClickList
         mProgressDialog = new ProgressDialog(getContext());
 
         mRootView = getActivity().getLayoutInflater().inflate(R.layout.create_post_dialog, null);
-        mPostDisplay = (ImageView) mRootView.findViewById(R.id.post_dialog_display);
+        mPostDisplay = mRootView.findViewById(R.id.post_dialog_display);
         mRootView.findViewById(R.id.post_dialog_send_imageview).setOnClickListener(this);
         mRootView.findViewById(R.id.post_dialog_select_imageview).setOnClickListener(this);
         builder.setView(mRootView);
@@ -78,12 +78,13 @@ public class PostCreateDialog extends DialogFragment implements View.OnClickList
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User user = dataSnapshot.getValue(User.class);
                         final String postId = FirebaseUtils.getUid();
-                        TextView postDialogTextView = (TextView) mRootView.findViewById(R.id.post_dialog_edittext);
+                        TextView postDialogTextView = mRootView.findViewById(R.id.post_dialog_edittext);
                         String text = postDialogTextView.getText().toString();
 
                         mPost.setUser(user);
                         mPost.setNumComments(0);
                         mPost.setNumLikes(0);
+                        mPost.setNumDownvotes(0);
                         mPost.setTimeCreated(System.currentTimeMillis());
                         mPost.setPostId(postId);
                         mPost.setPostText(text);

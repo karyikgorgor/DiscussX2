@@ -1,5 +1,7 @@
 package com.fyp.discussx.utils;
 
+import android.hardware.ConsumerIrManager;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -40,6 +42,17 @@ public class FirebaseUtils {
     public static DatabaseReference getPostLikedRef(String postId){
         return getPostLikedRef().child(getCurrentUser().getEmail()
                 .replace(".",","))
+                .child(postId);
+    }
+
+    public static DatabaseReference getPostDownvotedRef() {
+        return FirebaseDatabase.getInstance()
+                .getReference(Constant.POST_DOWNVOTED_KEY);
+    }
+
+    public static DatabaseReference getPostDownvotedRef(String postId) {
+        return getPostDownvotedRef().child(getCurrentUser().getEmail()
+                 .replace(".",","))
                 .child(postId);
     }
 

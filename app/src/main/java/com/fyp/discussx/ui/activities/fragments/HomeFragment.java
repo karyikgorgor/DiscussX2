@@ -63,7 +63,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void init() {
-        mPostRecyclerView = (RecyclerView) mRootVIew.findViewById(R.id.recyclerview_post);
+        mPostRecyclerView = mRootVIew.findViewById(R.id.recyclerview_post);
         mPostRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         setupAdapter();
         mPostRecyclerView.setAdapter(mPostAdapter);
@@ -80,6 +80,7 @@ public class HomeFragment extends Fragment {
             protected void populateViewHolder(PostHolder viewHolder, final Post model, int position) {
                 viewHolder.setNumCOmments(String.valueOf(model.getNumComments()));
                 viewHolder.setNumLikes(String.valueOf(model.getNumLikes()));
+                viewHolder.setPostNumDownvotesTextView(String.valueOf(model.getNumDownvotes()));
                 viewHolder.setTIme(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
                 viewHolder.setUsername(model.getUser().getUser());
                 viewHolder.setPostText(model.getPostText());
@@ -104,6 +105,13 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         onLikeClick(model.getPostId());
+                    }
+                });
+
+                viewHolder.postDownvotesLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onDownvoteClick(model.getPostId());
                     }
                 });
 
@@ -173,6 +181,58 @@ public class HomeFragment extends Fragment {
                 });
     }
 
+    public void onDownvoteClick (final String postId) {
+        FirebaseUtils.getPostDownvotedRef(postId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue() != null) {
+                            //User downvoted
+                            FirebaseUtils.getPostRef()
+                                    .child(postId)
+                                    .child(Constant.NUM_DOWNVOTES_KEY)
+                                    .runTransaction(new Transaction.Handler() {
+                                        @Override
+                                        public Transaction.Result doTransaction(MutableData mutableData) {
+                                            long num = (long) mutableData.getValue();
+                                            mutableData.setValue(num - 1);
+                                            return Transaction.success(mutableData);
+                                        }
+
+                                        @Override
+                                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                                            FirebaseUtils.getPostDownvotedRef(postId)
+                                                    .setValue(null);
+                                        }
+                                    });
+                        } else {
+                            FirebaseUtils.getPostRef()
+                                    .child(postId)
+                                    .child(Constant.NUM_DOWNVOTES_KEY)
+                                    .runTransaction(new Transaction.Handler() {
+                                        @Override
+                                        public Transaction.Result doTransaction(MutableData mutableData) {
+                                            long num = (long) mutableData.getValue();
+                                            mutableData.setValue(num + 1);
+                                            return Transaction.success(mutableData);
+                                        }
+
+                                        @Override
+                                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                                            FirebaseUtils.getPostDownvotedRef(postId)
+                                                    .setValue(true);
+                                        }
+                                    });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
     public static class PostHolder extends RecyclerView.ViewHolder {
         ImageView postOwnerDisplayImageView;
         TextView postOwnerUsernameTextView;
@@ -180,8 +240,10 @@ public class HomeFragment extends Fragment {
         ImageView postDisplayImageVIew;
         TextView postTextTextView;
         LinearLayout postLikeLayout;
+        LinearLayout postDownvotesLayout;
         LinearLayout postCommentLayout;
         TextView postNumLikesTextView;
+        TextView postNumDownvotesTextView;
         TextView postNumCommentsTextView;
 
 
@@ -192,8 +254,10 @@ public class HomeFragment extends Fragment {
             postTimeCreatedTextView = (TextView) itemView.findViewById(R.id.tv_time);
             postDisplayImageVIew = (ImageView) itemView.findViewById(R.id.iv_post_display);
             postLikeLayout = (LinearLayout) itemView.findViewById(R.id.like_layout);
+            postDownvotesLayout = itemView.findViewById(R.id.downvote_layout);
             postCommentLayout = (LinearLayout) itemView.findViewById(R.id.comment_layout);
-            postNumLikesTextView = (TextView) itemView.findViewById(R.id.tv_likes);
+            postNumLikesTextView = (TextView) itemView.findViewById(R.id.tv_upvotes);
+            postNumDownvotesTextView = itemView.findViewById(R.id.tv_downvote);
             postNumCommentsTextView = (TextView) itemView.findViewById(R.id.tv_comments);
             postTextTextView = (TextView) itemView.findViewById(R.id.tv_post_text);
         }
@@ -208,6 +272,10 @@ public class HomeFragment extends Fragment {
 
         public void setNumLikes(String numLikes) {
             postNumLikesTextView.setText(numLikes);
+        }
+
+        public void setPostNumDownvotesTextView (String numDownvotes) {
+            postNumDownvotesTextView.setText(numDownvotes);
         }
 
         public void setNumCOmments(String numComments) {

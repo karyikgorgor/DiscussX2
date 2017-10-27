@@ -1,5 +1,6 @@
 package com.fyp.discussx.ui.activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -96,9 +98,10 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
         TextView postOwnerUsernameTextView = findViewById(R.id.tv_post_username);
         TextView postTimeCreatedTextView = findViewById(R.id.tv_time);
         ImageView postDisplayImageView = findViewById(R.id.iv_post_display);
-        LinearLayout postLikeLayout = findViewById(R.id.like_layout);
+        LinearLayout postUpvoteLayout = findViewById(R.id.like_layout);
+        LinearLayout postDownvoteLayout = findViewById(R.id.downvote_layout);
         LinearLayout postCommentLayout = findViewById(R.id.comment_layout);
-        TextView postNumLikesTextView = findViewById(R.id.tv_likes);
+        TextView postNumLikesTextView = findViewById(R.id.tv_upvotes);
         TextView postNumCommentsTextView = findViewById(R.id.tv_comments);
         TextView postTextTextView = findViewById(R.id.tv_post_text);
 
@@ -147,6 +150,8 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
         progressDialog.setCancelable(true);
         progressDialog.setIndeterminate(true);
         progressDialog.show();
+
+        hideKeyboardFrom(PostActivity.this);
         mComment = new Comment();
         final String uid = FirebaseUtils.getUid();
         String strComment = mCommentEditTextView.getText().toString();
@@ -214,7 +219,10 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
             commentTextView.setText(comment);
         }
     }
-
+    public static void hideKeyboardFrom(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+    }
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putSerializable(BUNDLE_COMMENT, mComment);
