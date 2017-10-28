@@ -14,17 +14,23 @@ public class Comment implements Serializable {
     private String userName;
     private String commentId;
     private long timeCreated;
+    private long numCommentLikes;
+    private long numCommentDownvotes;
+    private String replyToComment;
     private String comment;
 
     public Comment() {
     }
 
-    public Comment(User user, String commentId, long timeCreated, String comment, String userName) {
+    public Comment(User user, String commentId, long timeCreated, long numCommentLikes, long numCommentDownvotes, String replyToComment, String comment,  String userName) {
         this.userName = userName;
         this.user = user;
         this.commentId = commentId;
         this.timeCreated = timeCreated;
         this.comment = comment;
+        this.numCommentDownvotes = numCommentDownvotes;
+        this.numCommentLikes = numCommentLikes;
+        this.replyToComment = replyToComment;
     }
 
     public String getUserName() {
@@ -64,5 +70,29 @@ public class Comment implements Serializable {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public long getNumCommentLikes() {
+        return numCommentLikes;
+    }
+
+    public void setNumCommentLikes(long numCommentLikes) {
+        this.numCommentLikes = numCommentLikes;
+    }
+
+    public long getNumCommentDownvotes() {
+        return numCommentDownvotes;
+    }
+
+    public void setNumCommentDownvotes(long numCommentDownvotes) {
+        this.numCommentDownvotes = numCommentDownvotes;
+    }
+
+    public String getReplyToComment() {
+        return replyToComment;
+    }
+
+    public void setReplyToComment(String replyToComment) {
+        this.replyToComment = replyToComment;
     }
 }

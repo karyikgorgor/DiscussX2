@@ -1,16 +1,25 @@
 package com.fyp.discussx.ui.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -23,17 +32,16 @@ import com.fyp.discussx.R;
 import com.fyp.discussx.model.Comment;
 import com.fyp.discussx.model.Post;
 import com.fyp.discussx.model.User;
+import com.fyp.discussx.ui.activities.dialogs.CommentSortDialog;
 import com.fyp.discussx.utils.Constant;
 import com.fyp.discussx.utils.FirebaseUtils;
 
 
 import com.firebase.ui.storage.images.FirebaseImageLoader;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -46,12 +54,15 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
     private User mUser;
     private EditText mCommentEditTextView;
     private Comment mComment;
+    private Button btnCommentSort;
     private static final String TAG = "PostActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
+
+        btnCommentSort = findViewById(R.id.comment_sort);
 
         if (savedInstanceState != null) {
             mComment = (Comment) savedInstanceState.getSerializable(BUNDLE_COMMENT);
@@ -63,6 +74,10 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
         init();
         initPost();
         initCommentSection();
+    }
+
+    public PostActivity () {
+
     }
 
     //display comments list
@@ -77,14 +92,37 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
                 FirebaseUtils.getCommentRef(mPost.getPostId())
         ) {
             @Override
-            protected void populateViewHolder(CommentHolder viewHolder, Comment model, int position) {
+            protected void populateViewHolder(final CommentHolder viewHolder, final Comment model, int position) {
                 viewHolder.setUsername(model.getUserName());
                 viewHolder.setComment(model.getComment());
                 viewHolder.setTime(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
+                viewHolder.setCommentNumLikes(String.valueOf(model.getNumCommentLikes()));
+                viewHolder.setCommentNumDownvotes(String.valueOf(model.getNumCommentDownvotes()));
 
                 Glide.with(PostActivity.this)
                         .load(mPost.getUser().getPhotoUrl())
                         .into(viewHolder.commentOwnerDisplay);
+
+                viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onCommentLikeClick(mPost.getPostId(), model.getCommentId());
+                    }
+                });
+
+                viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onCommentDownvotedClick(mPost.getPostId(), model.getCommentId());
+                    }
+                });
+
+                btnCommentSort.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        commentSortDialog();
+                    }
+                });
 
             }
         };
@@ -92,24 +130,253 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
         commentRecyclerView.setAdapter(commentAdapter);
     }
 
+    private void commentSortDialog () {
+        CharSequence [] options = {"Most Upvoted", "Most Downvoted", "Most Argumentative","Oldest", "Newest"};
+
+        AlertDialog.Builder commentSort = new AlertDialog.Builder(this);
+        commentSort.setTitle("Comments Sort Options");
+        commentSort.setSingleChoiceItems(options, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        commentSortByMostUpvotes(mPost.getPostId());
+                        break;
+                    case 1:
+                        commentSortByMostDownvotes(mPost.getPostId());
+                        break;
+                    case 2:
+
+                        break;
+                    case 3:
+                        commentSortByOldest(mPost.getPostId());
+                        break;
+                    case 4:
+                        commentSortByNewest(mPost.getPostId());
+                        break;
+                }
+
+            }
+        }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+            }
+        }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alert = commentSort.create();
+        alert.show();
+    }
+
+
+    private void commentSortByMostUpvotes (String postId) {
+        RecyclerView commentRecyclerView = findViewById(R.id.comment_recyclerview);
+        commentRecyclerView.setLayoutManager(new LinearLayoutManager(PostActivity.this));
+
+        Query query = FirebaseUtils.getCommentRef(postId).orderByChild(Constant.NUM_COMMENT_LIKES_KEY);
+
+        FirebaseRecyclerAdapter<Comment, CommentHolder> commentAdapter = new FirebaseRecyclerAdapter<Comment, CommentHolder>(
+                Comment.class,
+                R.layout.row_comment,
+                CommentHolder.class,
+                query
+        ) {
+
+            @Override
+            public Comment getItem(int position) {
+                return super.getItem(getItemCount() - 1 - position);
+            }
+
+            @Override
+            protected void populateViewHolder(final CommentHolder viewHolder, final Comment model, int position) {
+                viewHolder.setUsername(model.getUserName());
+                viewHolder.setComment(model.getComment());
+                viewHolder.setTime(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
+                viewHolder.setCommentNumLikes(String.valueOf(model.getNumCommentLikes()));
+                viewHolder.setCommentNumDownvotes(String.valueOf(model.getNumCommentDownvotes()));
+
+                Glide.with(PostActivity.this)
+                        .load(mPost.getUser().getPhotoUrl())
+                        .into(viewHolder.commentOwnerDisplay);
+
+                viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onCommentLikeClick(mPost.getPostId(), model.getCommentId());
+                    }
+                });
+                viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onCommentDownvotedClick(mPost.getPostId(), model.getCommentId());
+                    }
+                });
+
+            }
+        };
+        commentRecyclerView.setAdapter(commentAdapter);
+    }
+    private void commentSortByMostDownvotes (String postId) {
+        RecyclerView commentRecyclerView = findViewById(R.id.comment_recyclerview);
+        commentRecyclerView.setLayoutManager(new LinearLayoutManager(PostActivity.this));
+
+        Query query = FirebaseUtils.getCommentRef(postId).orderByChild(Constant.NUM_COMMENT_DOWNVOTES_KEY);
+
+        FirebaseRecyclerAdapter<Comment, CommentHolder> commentAdapter = new FirebaseRecyclerAdapter<Comment, CommentHolder>(
+                Comment.class,
+                R.layout.row_comment,
+                CommentHolder.class,
+                query
+        ) {
+
+            @Override
+            public Comment getItem(int position) {
+                return super.getItem(getItemCount() - 1 - position);
+            }
+
+            @Override
+            protected void populateViewHolder(final CommentHolder viewHolder, final Comment model, int position) {
+                viewHolder.setUsername(model.getUserName());
+                viewHolder.setComment(model.getComment());
+                viewHolder.setTime(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
+                viewHolder.setCommentNumLikes(String.valueOf(model.getNumCommentLikes()));
+                viewHolder.setCommentNumDownvotes(String.valueOf(model.getNumCommentDownvotes()));
+
+                Glide.with(PostActivity.this)
+                        .load(mPost.getUser().getPhotoUrl())
+                        .into(viewHolder.commentOwnerDisplay);
+
+                viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onCommentLikeClick(mPost.getPostId(), model.getCommentId());
+                    }
+                });
+                viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onCommentDownvotedClick(mPost.getPostId(), model.getCommentId());
+                    }
+                });
+
+            }
+        };
+        commentRecyclerView.setAdapter(commentAdapter);
+    }
+
+    private void commentSortByNewest (String postId) {
+        RecyclerView commentRecyclerView = findViewById(R.id.comment_recyclerview);
+        commentRecyclerView.setLayoutManager(new LinearLayoutManager(PostActivity.this));
+
+        Query query = FirebaseUtils.getCommentRef(postId).orderByChild(Constant.COMMENT_TIME_CREATED);
+
+        FirebaseRecyclerAdapter<Comment, CommentHolder> commentAdapter = new FirebaseRecyclerAdapter<Comment, CommentHolder>(
+                Comment.class,
+                R.layout.row_comment,
+                CommentHolder.class,
+                query
+        ) {
+
+            @Override
+            public Comment getItem(int position) {
+                return super.getItem(getItemCount() - 1 - position);
+            }
+
+            @Override
+            protected void populateViewHolder(final CommentHolder viewHolder, final Comment model, int position) {
+                viewHolder.setUsername(model.getUserName());
+                viewHolder.setComment(model.getComment());
+                viewHolder.setTime(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
+                viewHolder.setCommentNumLikes(String.valueOf(model.getNumCommentLikes()));
+                viewHolder.setCommentNumDownvotes(String.valueOf(model.getNumCommentDownvotes()));
+
+                Glide.with(PostActivity.this)
+                        .load(mPost.getUser().getPhotoUrl())
+                        .into(viewHolder.commentOwnerDisplay);
+
+                viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onCommentLikeClick(mPost.getPostId(), model.getCommentId());
+                    }
+                });
+                viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onCommentDownvotedClick(mPost.getPostId(), model.getCommentId());
+                    }
+                });
+
+            }
+        };
+        commentRecyclerView.setAdapter(commentAdapter);
+    }
+
+
+    private void commentSortByOldest (String postId) {
+        RecyclerView commentRecyclerView = findViewById(R.id.comment_recyclerview);
+        commentRecyclerView.setLayoutManager(new LinearLayoutManager(PostActivity.this));
+
+        Query query = FirebaseUtils.getCommentRef(postId).orderByChild(Constant.COMMENT_TIME_CREATED);
+
+        FirebaseRecyclerAdapter<Comment, CommentHolder> commentAdapter = new FirebaseRecyclerAdapter<Comment, CommentHolder>(
+                Comment.class,
+                R.layout.row_comment,
+                CommentHolder.class,
+                query
+        ) {
+
+            @Override
+            protected void populateViewHolder(final CommentHolder viewHolder, final Comment model, int position) {
+                viewHolder.setUsername(model.getUserName());
+                viewHolder.setComment(model.getComment());
+                viewHolder.setTime(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
+                viewHolder.setCommentNumLikes(String.valueOf(model.getNumCommentLikes()));
+                viewHolder.setCommentNumDownvotes(String.valueOf(model.getNumCommentDownvotes()));
+
+                Glide.with(PostActivity.this)
+                        .load(mPost.getUser().getPhotoUrl())
+                        .into(viewHolder.commentOwnerDisplay);
+
+                viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onCommentLikeClick(mPost.getPostId(), model.getCommentId());
+                    }
+                });
+                viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onCommentDownvotedClick(mPost.getPostId(), model.getCommentId());
+                    }
+                });
+
+            }
+        };
+        commentRecyclerView.setAdapter(commentAdapter);
+    }
     //display posts list
     private void initPost() {
         ImageView postOwnerDisplayImageView = findViewById(R.id.iv_post_owner_display);
         TextView postOwnerUsernameTextView = findViewById(R.id.tv_post_username);
         TextView postTimeCreatedTextView = findViewById(R.id.tv_time);
         ImageView postDisplayImageView = findViewById(R.id.iv_post_display);
-        LinearLayout postUpvoteLayout = findViewById(R.id.like_layout);
-        LinearLayout postDownvoteLayout = findViewById(R.id.downvote_layout);
-        LinearLayout postCommentLayout = findViewById(R.id.comment_layout);
+
         TextView postNumLikesTextView = findViewById(R.id.tv_upvotes);
         TextView postNumCommentsTextView = findViewById(R.id.tv_comments);
         TextView postTextTextView = findViewById(R.id.tv_post_text);
+
 
         postOwnerUsernameTextView.setText(mPost.getUser().getUser());
         postTimeCreatedTextView.setText(DateUtils.getRelativeTimeSpanString(mPost.getTimeCreated()));
         postTextTextView.setText(mPost.getPostText());
         postNumLikesTextView.setText(String.valueOf(mPost.getNumLikes()));
         postNumCommentsTextView.setText(String.valueOf(mPost.getNumComments()));
+
 
         Glide.with(PostActivity.this)
                 .load(mPost.getUser().getPhotoUrl())
@@ -145,87 +412,241 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void sendComment() {
-        final ProgressDialog progressDialog = new ProgressDialog(PostActivity.this);
-        progressDialog.setMessage("Sending comment..");
-        progressDialog.setCancelable(true);
-        progressDialog.setIndeterminate(true);
-        progressDialog.show();
 
-        hideKeyboardFrom(PostActivity.this);
-        mComment = new Comment();
-        final String uid = FirebaseUtils.getUid();
-        String strComment = mCommentEditTextView.getText().toString();
+        if (!TextUtils.isEmpty(mCommentEditTextView.getText().toString())) {
+            final ProgressDialog progressDialog = new ProgressDialog(PostActivity.this);
+            progressDialog.setMessage("Sending comment..");
+            progressDialog.setCancelable(true);
+            progressDialog.setIndeterminate(true);
+            progressDialog.show();
 
-        mComment.setCommentId(uid);
-        mComment.setComment(strComment);
-        mComment.setTimeCreated(System.currentTimeMillis());
-        mComment.setUserName(FirebaseUtils.getCurrentUser().getDisplayName());
-        FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".", ","))
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        User user = dataSnapshot.getValue(User.class);
-                        FirebaseUtils.getCommentRef(mPost.getPostId())
-                                .child(uid)
-                                .setValue(mComment);
+            hideKeyboardFrom(PostActivity.this);
+            mComment = new Comment();
+            final String uid = FirebaseUtils.getUid();
 
-                        FirebaseUtils.getPostRef().child(mPost.getPostId())
-                                .child(Constant.NUM_COMMENTS_KEY)
-                                .runTransaction(new Transaction.Handler() {
-                                    @Override
-                                    public Transaction.Result doTransaction(MutableData mutableData) {
-                                        long num = (long) mutableData.getValue();
-                                        mutableData.setValue(num + 1);
-                                        return Transaction.success(mutableData);
-                                    }
+            mComment.setCommentId(uid);
+            mComment.setComment(mCommentEditTextView.getText().toString());
+            mComment.setTimeCreated(System.currentTimeMillis());
+            mComment.setNumCommentLikes(0);
+            mComment.setNumCommentDownvotes(0);
+            mComment.setUserName(FirebaseUtils.getCurrentUser().getDisplayName());
 
-                                    @Override
-                                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                                        progressDialog.dismiss();
-                                        FirebaseUtils.addToMyRecord(Constant.COMMENTS_KEY, uid);
-                                    }
-                                });
-                    }
+            FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".", ","))
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            User user = dataSnapshot.getValue(User.class);
+                            FirebaseUtils.getCommentRef(mPost.getPostId())
+                                    .child(uid)
+                                    .setValue(mComment);
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        progressDialog.dismiss();
-                    }
-                });
+                            FirebaseUtils.getPostRef().child(mPost.getPostId())
+                                    .child(Constant.NUM_COMMENTS_KEY)
+                                    .runTransaction(new Transaction.Handler() {
+                                        @Override
+                                        public Transaction.Result doTransaction(MutableData mutableData) {
+                                            long num = (long) mutableData.getValue();
+                                            mutableData.setValue(num + 1);
+                                            return Transaction.success(mutableData);
+                                        }
+
+                                        @Override
+                                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                                            progressDialog.dismiss();
+                                            FirebaseUtils.addToMyRecord(Constant.COMMENTS_KEY, uid);
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            progressDialog.dismiss();
+                        }
+                    });
+        } else {
+            Toast.makeText(this, "Type something you idiot", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 
     public static class CommentHolder extends RecyclerView.ViewHolder {
         View mView;
         ImageView commentOwnerDisplay;
+        TextView usernameTextView;
+        TextView timeTextView;
+        TextView commentTextView;
+        TextView numLikesTextView;
+        TextView numDownvotesTextView;
+        LinearLayout commentLikeLayout;
+        LinearLayout commentDownvoteLayout;
+
         public CommentHolder(View itemView) {
             super(itemView);
             mView = itemView;
             commentOwnerDisplay =  mView.findViewById(R.id.iv_comment_owner_display);
+            usernameTextView =  mView.findViewById(R.id.tv_username);
+            timeTextView = mView.findViewById(R.id.tv_time);
+            commentTextView =  mView.findViewById(R.id.tv_comment);
+            numLikesTextView = mView.findViewById(R.id.comment_tv_upvotes);
+            numDownvotesTextView = mView.findViewById(R.id.comment_tv_downvote);
+            commentLikeLayout = mView.findViewById(R.id.comment_like_layout);
+            commentDownvoteLayout = mView.findViewById(R.id.comment_downvote_layout);
         }
 
         public void setUsername(String username) {
-            TextView usernameTextView =  mView.findViewById(R.id.tv_username);
             usernameTextView.setText(username);
         }
 
         public void setTime(CharSequence time) {
-            TextView timeTextView = mView.findViewById(R.id.tv_time);
             timeTextView.setText(time);
         }
 
         public void setComment(String comment) {
-            TextView commentTextView =  mView.findViewById(R.id.tv_comment);
             commentTextView.setText(comment);
         }
+
+        public void setCommentNumLikes (String numLikes) {
+            numLikesTextView.setText(numLikes);
+        }
+
+        public void setCommentNumDownvotes (String numDownvotes) {
+            numDownvotesTextView.setText(numDownvotes);
+        }
     }
-    public static void hideKeyboardFrom(Activity activity) {
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+
+    private void onCommentLikeClick(final String postId, final String commentId) {
+        FirebaseUtils.getCommentLikedRef(postId, commentId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue() != null) {
+                            //User liked
+                            FirebaseUtils.getCommentRef(postId)
+                                    .child(commentId)
+                                    .child(Constant.NUM_COMMENT_LIKES_KEY)
+                                    .runTransaction(new Transaction.Handler() {
+                                        @Override
+                                        public Transaction.Result doTransaction(MutableData mutableData) {
+                                            long num = (long) mutableData.getValue();
+                                            mutableData.setValue(num - 1);
+                                            return Transaction.success(mutableData);
+                                        }
+
+                                        @Override
+                                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                                            FirebaseUtils.getCommentLikedRef(postId, commentId)
+                                                    .setValue(null);
+                                        }
+                                    });
+                        } else {
+                            FirebaseUtils.getCommentRef(postId)
+                                    .child(commentId)
+                                    .child(Constant.NUM_COMMENT_LIKES_KEY)
+                                    .runTransaction(new Transaction.Handler() {
+                                        @Override
+                                        public Transaction.Result doTransaction(MutableData mutableData) {
+                                            long num = (long) mutableData.getValue();
+                                            mutableData.setValue(num + 1);
+                                            return Transaction.success(mutableData);
+                                        }
+
+                                        @Override
+                                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                                            FirebaseUtils.getCommentLikedRef(postId, commentId)
+                                                    .setValue(true);
+                                        }
+                                    });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
     }
+
+    private void onCommentDownvotedClick(final String postId, final String commentId) {
+        FirebaseUtils.getCommentDownvotedRef(postId, commentId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue() != null) {
+                            //User liked
+                            FirebaseUtils.getCommentRef(postId)
+                                    .child(commentId)
+                                    .child(Constant.NUM_COMMENT_DOWNVOTES_KEY)
+                                    .runTransaction(new Transaction.Handler() {
+                                        @Override
+                                        public Transaction.Result doTransaction(MutableData mutableData) {
+                                            long num = (long) mutableData.getValue();
+                                            mutableData.setValue(num - 1);
+                                            return Transaction.success(mutableData);
+                                        }
+
+                                        @Override
+                                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                                            FirebaseUtils.getCommentDownvotedRef(postId, commentId)
+                                                    .setValue(null);
+                                        }
+                                    });
+                        } else {
+                            FirebaseUtils.getCommentRef(postId)
+                                    .child(commentId)
+                                    .child(Constant.NUM_COMMENT_DOWNVOTES_KEY)
+                                    .runTransaction(new Transaction.Handler() {
+                                        @Override
+                                        public Transaction.Result doTransaction(MutableData mutableData) {
+                                            long num = (long) mutableData.getValue();
+                                            mutableData.setValue(num + 1);
+                                            return Transaction.success(mutableData);
+                                        }
+
+                                        @Override
+                                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                                            FirebaseUtils.getCommentDownvotedRef(postId, commentId)
+                                                    .setValue(true);
+                                        }
+                                    });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putSerializable(BUNDLE_COMMENT, mComment);
         super.onSaveInstanceState(outState);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu (Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.refresh) {
+            Intent intent = getIntent();
+            finish();
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivity(intent);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public static void hideKeyboardFrom(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
 }

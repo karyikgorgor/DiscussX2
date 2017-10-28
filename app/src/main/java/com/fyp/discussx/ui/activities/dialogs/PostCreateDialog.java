@@ -85,6 +85,7 @@ public class PostCreateDialog extends DialogFragment implements View.OnClickList
                         mPost.setNumComments(0);
                         mPost.setNumLikes(0);
                         mPost.setNumDownvotes(0);
+                        mPost.setReplyToComments(0);
                         mPost.setTimeCreated(System.currentTimeMillis());
                         mPost.setPostId(postId);
                         mPost.setPostText(text);

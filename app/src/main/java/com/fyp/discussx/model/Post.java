@@ -18,12 +18,13 @@ public class Post implements Serializable {
     private long numLikes;
     private long numDownvotes;
     private long numComments;
+    private long replyToComments;
     private long timeCreated;
 
     public Post() {
     }
 
-    public Post(User user, String postText, String postImageUrl, String postId, long numLikes, long numDownvotes, long numComments, long timeCreated) {
+    public Post(User user, String postText, String postImageUrl, String postId, long numLikes, long numDownvotes, long numComments, long replyToComments, long timeCreated) {
 
         this.user = user;
         this.postText = postText;
@@ -33,6 +34,7 @@ public class Post implements Serializable {
         this.numDownvotes = numDownvotes;
         this.numComments = numComments;
         this.timeCreated = timeCreated;
+        this.replyToComments = replyToComments;
     }
 
     public User getUser() {
@@ -49,6 +51,14 @@ public class Post implements Serializable {
 
     public void setNumDownvotes(long numDownvotes) {
         this.numDownvotes = numDownvotes;
+    }
+
+    public long getReplyToComments() {
+        return replyToComments;
+    }
+
+    public void setReplyToComments(long replyToComments) {
+        this.replyToComments = replyToComments;
     }
 
     public String getPostText() {

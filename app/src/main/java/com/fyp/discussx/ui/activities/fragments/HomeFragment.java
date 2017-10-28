@@ -51,6 +51,7 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         mRootVIew = inflater.inflate(R.layout.fragment_home, container, false);
         FloatingActionButton fab = (FloatingActionButton) mRootVIew.findViewById(R.id.fab);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

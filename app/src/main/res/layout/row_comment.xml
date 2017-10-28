@@ -41,7 +41,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="16dp"
                 android:text="10h30"
-                android:textAlignment="textEnd" />
+                android:textAlignment="textEnd"
+                android:gravity="end"/>
         </LinearLayout>
 
         <TextView

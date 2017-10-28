@@ -56,6 +56,28 @@ public class FirebaseUtils {
                 .child(postId);
     }
 
+    public static DatabaseReference getCommentLikedRef(){
+        return FirebaseDatabase.getInstance()
+                .getReference(Constant.COMMENT_LIKED_KEY);
+    }
+
+    public static DatabaseReference getCommentLikedRef(String postId, String commentId){
+        return getCommentLikedRef().child(getCurrentUser().getEmail()
+                .replace(".",","))
+                .child(postId).child(commentId);
+    }
+
+    public static DatabaseReference getCommentDownvotedRef() {
+        return FirebaseDatabase.getInstance()
+                .getReference(Constant.COMMENT_DOWNVOTED_KEY);
+    }
+
+    public static DatabaseReference getCommentDownvotedRef(String postId, String commentId) {
+        return getCommentDownvotedRef().child(getCurrentUser().getEmail()
+                .replace(".",","))
+                .child(postId).child(commentId);
+    }
+
     public static FirebaseUser getCurrentUser(){
         return FirebaseAuth.getInstance().getCurrentUser();
     }
@@ -77,11 +99,6 @@ public class FirebaseUtils {
     public static DatabaseReference getCommentRef(String postId){
         return FirebaseDatabase.getInstance().getReference(Constant.COMMENTS_KEY)
                 .child(postId);
-    }
-
-    public static DatabaseReference getCommenterRef (String postId) {
-        return FirebaseDatabase.getInstance().getReference(Constant.POST_KEY)
-                .child(postId).child("user");
     }
 
     public static DatabaseReference getMyRecordRef(){

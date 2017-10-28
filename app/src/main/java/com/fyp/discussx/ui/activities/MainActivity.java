@@ -129,6 +129,12 @@ public class MainActivity extends BaseActivity
         if (id == R.id.action_settings) {
             return true;
         }
+        else if (item.getItemId() == R.id.refresh) {
+            Intent intent = getIntent();
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            finish();
+            startActivity(intent);
+        }
 
         return super.onOptionsItemSelected(item);
     }
