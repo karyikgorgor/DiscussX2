@@ -11,16 +11,26 @@ public class User implements Serializable {
     private String email;
     private String photoUrl;
     private String uid;
+    private Group group;
 
     public User() {
     }
 
-    public User(String user, String email, String photoUrl, String uid) {
 
+    public User(String user, String email, String photoUrl, String uid, Group group) {
         this.user = user;
         this.email = email;
         this.photoUrl = photoUrl;
         this.uid = uid;
+        this.group = group;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     public String getUser() {

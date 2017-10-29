@@ -25,7 +25,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.activities.PostActivity" />
-        <activity android:name=".ui.activities.RegisterActivity"></activity>
+        <activity android:name=".ui.activities.RegisterActivity" />
+        <activity android:name=".ui.activities.CreateGroupActivity" />
+        <activity android:name=".ui.activities.JoinGroupActivity"></activity>
     </application>
 
 </manifest>

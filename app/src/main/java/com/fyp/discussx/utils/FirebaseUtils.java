@@ -101,6 +101,30 @@ public class FirebaseUtils {
                 .child(postId);
     }
 
+    public static DatabaseReference getGroupCreatedRef () {
+        return  FirebaseDatabase.getInstance().getReference(Constant.GROUP_CREATED_KEY);
+    }
+
+    public static DatabaseReference getGroupCreatedRef (String groupId) {
+        return getGroupCreatedRef().child(groupId);
+    }
+
+    public static DatabaseReference getGroupJoinedRef () {
+        return  FirebaseDatabase.getInstance().getReference(Constant.GROUP_JOINED_KEY);
+    }
+
+    public static DatabaseReference getGroupJoinedRef (String groupId) {
+        return  getGroupJoinedRef().child(groupId);
+    }
+
+    public static DatabaseReference getGroupMembersRef () {
+        return FirebaseDatabase.getInstance().getReference(Constant.GROUP_MEMBER);
+    }
+
+    public static DatabaseReference getGroupMembersRef (String groupId) {
+        return getGroupMembersRef().child(groupId);
+    }
+
     public static DatabaseReference getMyRecordRef(){
         return FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD)
                 .child(getCurrentUser().getEmail().replace(".",","));

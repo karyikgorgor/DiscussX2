@@ -20,12 +20,13 @@ public class Post implements Serializable {
     private long numComments;
     private long replyToComments;
     private long timeCreated;
+    private Group group;
 
     public Post() {
     }
 
-    public Post(User user, String postText, String postImageUrl, String postId, long numLikes, long numDownvotes, long numComments, long replyToComments, long timeCreated) {
 
+    public Post(User user, String postText, String postImageUrl, String postId, long numLikes, long numDownvotes, long numComments, long replyToComments, long timeCreated, Group group) {
         this.user = user;
         this.postText = postText;
         this.postImageUrl = postImageUrl;
@@ -33,8 +34,17 @@ public class Post implements Serializable {
         this.numLikes = numLikes;
         this.numDownvotes = numDownvotes;
         this.numComments = numComments;
-        this.timeCreated = timeCreated;
         this.replyToComments = replyToComments;
+        this.timeCreated = timeCreated;
+        this.group = group;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     public User getUser() {

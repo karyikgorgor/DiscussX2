@@ -25,7 +25,7 @@ public class BaseActivity extends AppCompatActivity implements
     protected FirebaseUser mFirebaseUser;
     protected GoogleApiClient mGoogleApiClient;
     protected FirebaseAuth mAuth;
-    private ProgressDialog mProgressDialog; //Not really needed but I like having it
+    private ProgressDialog mProgressDialog;
     private GoogleSignInOptions mGso;
 
     @Override

@@ -22,5 +22,14 @@ public class Constant {
     public static final String USER_RECORD = "user_record";
     public static final String USERS_KEY = "users";
     public static final String COMMENT_TIME_CREATED = "timeCreated";
+    public static final String GROUP_CREATED_KEY = "groups_created";
+    public static final String GROUP_JOINED_KEY = "groups_joined";
+    public static final String GROUP_NAME = "groupName";
+    public static final String GROUP_ID = "groupId";
+    public static final String GROUP_MEMBER = "group_members";
+    public static final String NUM_MEMBERS_KEY = "numMembers";
+    public static final String MEMBERS_ID_KEY = "membersId";
+    public static final String NUM_POSTS_KEY = "numPosts";
+
 
 }

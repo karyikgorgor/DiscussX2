@@ -18,19 +18,30 @@ public class Comment implements Serializable {
     private long numCommentDownvotes;
     private String replyToComment;
     private String comment;
+    private Group group;
 
     public Comment() {
     }
 
-    public Comment(User user, String commentId, long timeCreated, long numCommentLikes, long numCommentDownvotes, String replyToComment, String comment,  String userName) {
-        this.userName = userName;
+
+    public Comment(User user, String userName, String commentId, long timeCreated, long numCommentLikes, long numCommentDownvotes, String replyToComment, String comment, Group group) {
         this.user = user;
+        this.userName = userName;
         this.commentId = commentId;
         this.timeCreated = timeCreated;
-        this.comment = comment;
-        this.numCommentDownvotes = numCommentDownvotes;
         this.numCommentLikes = numCommentLikes;
+        this.numCommentDownvotes = numCommentDownvotes;
         this.replyToComment = replyToComment;
+        this.comment = comment;
+        this.group = group;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     public String getUserName() {

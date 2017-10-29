@@ -52,6 +52,8 @@ public class MainActivity extends BaseActivity
         };
 
         init();
+
+
         getSupportFragmentManager().beginTransaction().replace(R.id.container, new HomeFragment())
                 .commit();
 
@@ -70,6 +72,7 @@ public class MainActivity extends BaseActivity
     }
 
     private void init() {
+
         if (mFirebaseUser != null) {
             mUserRef = FirebaseUtils.getUserRef(mFirebaseUser.getEmail().replace(".", ","));
         }
@@ -126,8 +129,12 @@ public class MainActivity extends BaseActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_create_group) {
+            Intent intent = new Intent (MainActivity.this, CreateGroupActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.action_join_group) {
+            Intent intent = new Intent (MainActivity.this, JoinGroupActivity.class);
+            startActivity(intent);
         }
         else if (item.getItemId() == R.id.refresh) {
             Intent intent = getIntent();
@@ -158,7 +165,7 @@ public class MainActivity extends BaseActivity
         } else if (id == R.id.nav_send) {
 
         } else if (id == R.id.button_sign_out) {
-            FirebaseAuth.getInstance().signOut();
+            signOut();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
