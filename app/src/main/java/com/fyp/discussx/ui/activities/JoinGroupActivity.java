@@ -68,8 +68,10 @@ public class JoinGroupActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(View view, int position) {
                         TextView groupIdTv = view.findViewById(R.id.tv_group_id);
+                        TextView groupNameTv = view.findViewById(R.id.tv_group_name);
                         String groupId = groupIdTv.getText().toString();
-                        joinGroup(groupId);
+                        String groupName = groupNameTv.getText().toString();
+                        joinGroup(groupId, groupName);
                     }
 
                     @Override
@@ -116,6 +118,7 @@ public class JoinGroupActivity extends AppCompatActivity {
             groupNameTV.setText(groupName);
         }
 
+
         private GroupHolder.ClickListener mClickListener;
 
         public interface ClickListener {
@@ -129,7 +132,7 @@ public class JoinGroupActivity extends AppCompatActivity {
 
     }
 
-    private void joinGroup (final String groupId) {
+    private void joinGroup (final String groupId, final String groupName) {
         AlertDialog.Builder confirmJoinGroup = new AlertDialog.Builder(this);
         confirmJoinGroup.setTitle("Are you sure to join ");
         confirmJoinGroup.setIcon(android.R.drawable.ic_dialog_alert)
@@ -144,17 +147,23 @@ public class JoinGroupActivity extends AppCompatActivity {
 
                         final String memberId = FirebaseUtils.getCurrentUser().getUid();
                         Long timeJoined = System.currentTimeMillis();
+                        String email = FirebaseUtils.getCurrentUser().getEmail();
+                        String userName = FirebaseUtils.getCurrentUser().getDisplayName();
 
-                        final JoinGroup joinGroupInfo = new JoinGroup(memberId, timeJoined);
+                        final JoinGroup joinGroupInfo = new JoinGroup(memberId, timeJoined, email, userName, groupName);
                         joinGroupInfo.setMembersId(memberId);
                         joinGroupInfo.setTimeJoined(timeJoined);
+                        joinGroupInfo.setEmail(email);
+                        joinGroupInfo.setUserName(userName);
+                        joinGroupInfo.setGroupName(groupName);
 
                         FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",","))
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 User user = dataSnapshot.getValue(User.class);
-                                FirebaseUtils.getGroupMembersRef(groupId).child(memberId).setValue(joinGroupInfo);
+                                FirebaseUtils.getGroupCreatedRef(groupId).child(Constant.GROUP_MEMBER).child(memberId).setValue(joinGroupInfo);
+
 
                                 FirebaseUtils.getGroupCreatedRef().child(groupId)
                                         .child(Constant.NUM_MEMBERS_KEY)

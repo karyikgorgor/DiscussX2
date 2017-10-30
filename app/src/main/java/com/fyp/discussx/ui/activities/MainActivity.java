@@ -1,12 +1,20 @@
 package com.fyp.discussx.ui.activities;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +25,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.User;
+import com.fyp.discussx.ui.activities.adapters.TabAdapter;
+import com.fyp.discussx.ui.activities.fragments.GroupListFragment;
 import com.fyp.discussx.ui.activities.fragments.HomeFragment;
+import com.fyp.discussx.ui.activities.fragments.ProfilePageFragment;
 import com.fyp.discussx.utils.BaseActivity;
 import com.fyp.discussx.utils.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,12 +46,46 @@ public class MainActivity extends BaseActivity
     private TextView mEmailTextView;
     private ValueEventListener mUserValueEventListener;
     private DatabaseReference mUserRef;
+    private TabAdapter mTabAdapter;
+    private TabLayout tabLayout;
+    private ViewPager mViewPager;
+    private FragmentTransaction transaction;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
+
+        tabLayout = findViewById(R.id.tabs);
+        tabLayout.addTab(tabLayout.newTab().setText("HOME"));
+        tabLayout.addTab(tabLayout.newTab().setText("GROUPS"));
+        tabLayout.addTab(tabLayout.newTab().setText("PROFILE"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        final ViewPager viewPager = findViewById(R.id.pager);
+        final TabAdapter adapter = new TabAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
+        viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -52,11 +97,6 @@ public class MainActivity extends BaseActivity
         };
 
         init();
-
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, new HomeFragment())
-                .commit();
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -103,6 +143,7 @@ public class MainActivity extends BaseActivity
             }
         };
     }
+
 
     @Override
     public void onBackPressed() {
@@ -152,19 +193,13 @@ public class MainActivity extends BaseActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.moderator_page) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        }  else if (id == R.id.settings) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.moderator_page) {
 
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        } else if (id == R.id.button_sign_out) {
+        }  else if (id == R.id.button_sign_out) {
             signOut();
         }
 

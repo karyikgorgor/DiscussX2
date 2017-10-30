@@ -117,6 +117,12 @@ public class FirebaseUtils {
         return  getGroupJoinedRef().child(groupId);
     }
 
+    public static DatabaseReference getGroupJoinedFromUserRecordRef () {
+        return FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD)
+                .child(getCurrentUser().getEmail().replace(".",",")).child(Constant.GROUP_JOINED_KEY);
+    }
+
+
     public static DatabaseReference getGroupMembersRef () {
         return FirebaseDatabase.getInstance().getReference(Constant.GROUP_MEMBER);
     }

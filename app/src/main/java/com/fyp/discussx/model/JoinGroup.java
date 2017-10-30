@@ -7,13 +7,43 @@ package com.fyp.discussx.model;
 public class JoinGroup {
     private String membersId;
     private Long timeJoined;
+    private String email;
+    private String userName;
+    private String groupName;
 
     public JoinGroup() {
     }
 
-    public JoinGroup(String membersId, Long timeJoined) {
+    public JoinGroup(String membersId, Long timeJoined, String email, String userName, String groupName) {
         this.membersId = membersId;
         this.timeJoined = timeJoined;
+        this.email = email;
+        this.userName = userName;
+        this.groupName = groupName;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getMembersId() {

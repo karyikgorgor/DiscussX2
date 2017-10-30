@@ -11,6 +11,7 @@ import android.widget.EditText;
 
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.Group;
+import com.fyp.discussx.model.JoinGroup;
 import com.fyp.discussx.model.User;
 import com.fyp.discussx.utils.Constant;
 import com.fyp.discussx.utils.FirebaseUtils;
@@ -25,6 +26,7 @@ public class CreateGroupActivity extends AppCompatActivity {
     private EditText groupNameEditText;
     private Button btnCreateGroup;
     private Group mGroup;
+    private JoinGroup mJoinGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,7 @@ public class CreateGroupActivity extends AppCompatActivity {
             progressDialog.show();
 
             mGroup = new Group();
+            mJoinGroup = new JoinGroup();
             final String uid = FirebaseUtils.getUid();
 
             mGroup.setGroupId(uid);
@@ -64,7 +67,11 @@ public class CreateGroupActivity extends AppCompatActivity {
             mGroup.setModerator(FirebaseUtils.getCurrentUser().getUid());
             mGroup.setNumMembers(0);
             mGroup.setNumPosts(0);
-            mGroup.setMembersId("");
+            mJoinGroup.setMembersId(FirebaseUtils.getCurrentUser().getUid());
+            mJoinGroup.setTimeJoined(System.currentTimeMillis());
+            mJoinGroup.setEmail(FirebaseUtils.getCurrentUser().getEmail());
+            mJoinGroup.setUserName(FirebaseUtils.getCurrentUser().getDisplayName());
+            mJoinGroup.setGroupName(groupNameEditText.getText().toString());
 
 
             FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",","))
@@ -73,6 +80,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             User user = dataSnapshot.getValue(User.class);
                             FirebaseUtils.getGroupCreatedRef(uid).setValue(mGroup);
+                            FirebaseUtils.getGroupCreatedRef(uid).child(Constant.GROUP_MEMBER).child(FirebaseUtils.getCurrentUser().getUid()).setValue(mJoinGroup);
 
                             FirebaseUtils.getGroupCreatedRef().child(uid)
                                     .child(Constant.NUM_MEMBERS_KEY)
@@ -88,6 +96,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                                             progressDialog.dismiss();
                                             FirebaseUtils.addToMyRecord(Constant.GROUP_CREATED_KEY, uid);
+                                            FirebaseUtils.addToMyRecord(Constant.GROUP_JOINED_KEY,uid);
                                         }
                                     });
                         }
