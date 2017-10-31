@@ -126,8 +126,7 @@ public class HomeFragment extends Fragment {
         };
     }
 
-    //During the tutorial I think I messed up this code. Make sure your's aligns to this, or just
-    //check out the github code
+
     private void onLikeClick(final String postId) {
         FirebaseUtils.getPostLikedRef(postId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {

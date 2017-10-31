@@ -52,7 +52,7 @@ public class FirebaseUtils {
 
     public static DatabaseReference getPostDownvotedRef(String postId) {
         return getPostDownvotedRef().child(getCurrentUser().getEmail()
-                 .replace(".",","))
+                .replace(".",","))
                 .child(postId);
     }
 
@@ -118,8 +118,13 @@ public class FirebaseUtils {
     }
 
     public static DatabaseReference getGroupJoinedFromUserRecordRef () {
-        return FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD)
+        DatabaseReference x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD)
                 .child(getCurrentUser().getEmail().replace(".",",")).child(Constant.GROUP_JOINED_KEY);
+        if (FirebaseUtils.getCurrentUser() != null) {
+            x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD)
+                    .child(getCurrentUser().getEmail().replace(".",",")).child(Constant.GROUP_JOINED_KEY);
+        }
+        return x;
     }
 
 

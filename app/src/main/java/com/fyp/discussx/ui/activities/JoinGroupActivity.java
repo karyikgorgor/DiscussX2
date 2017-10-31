@@ -122,8 +122,8 @@ public class JoinGroupActivity extends AppCompatActivity {
         private GroupHolder.ClickListener mClickListener;
 
         public interface ClickListener {
-             void onItemClick (View view, int position);
-             void onItemLongClick (View view, int position);
+            void onItemClick (View view, int position);
+            void onItemLongClick (View view, int position);
         }
 
         public void setOnClickListener (GroupHolder.ClickListener clickListener) {
@@ -158,36 +158,36 @@ public class JoinGroupActivity extends AppCompatActivity {
                         joinGroupInfo.setGroupName(groupName);
 
                         FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",","))
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                User user = dataSnapshot.getValue(User.class);
-                                FirebaseUtils.getGroupCreatedRef(groupId).child(Constant.GROUP_MEMBER).child(memberId).setValue(joinGroupInfo);
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        User user = dataSnapshot.getValue(User.class);
+                                        FirebaseUtils.getGroupCreatedRef(groupId).child(Constant.GROUP_MEMBER).child(memberId).setValue(joinGroupInfo);
 
 
-                                FirebaseUtils.getGroupCreatedRef().child(groupId)
-                                        .child(Constant.NUM_MEMBERS_KEY)
-                                        .runTransaction(new Transaction.Handler() {
-                                            @Override
-                                            public Transaction.Result doTransaction(MutableData mutableData) {
-                                                long num = (long) mutableData.getValue();
-                                                mutableData.setValue(num + 1);
-                                                return Transaction.success(mutableData);
-                                            }
+                                        FirebaseUtils.getGroupCreatedRef().child(groupId)
+                                                .child(Constant.NUM_MEMBERS_KEY)
+                                                .runTransaction(new Transaction.Handler() {
+                                                    @Override
+                                                    public Transaction.Result doTransaction(MutableData mutableData) {
+                                                        long num = (long) mutableData.getValue();
+                                                        mutableData.setValue(num + 1);
+                                                        return Transaction.success(mutableData);
+                                                    }
 
-                                            @Override
-                                            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                                                progressDialog.dismiss();
-                                                FirebaseUtils.addToMyRecord(Constant.GROUP_JOINED_KEY, groupId);
-                                            }
-                                        });
-                            }
+                                                    @Override
+                                                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                                                        progressDialog.dismiss();
+                                                        FirebaseUtils.addToMyRecord(Constant.GROUP_JOINED_KEY, groupName);
+                                                    }
+                                                });
+                                    }
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
 
-                            }
-                        });
+                                    }
+                                });
 
                     }
                 }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -200,4 +200,3 @@ public class JoinGroupActivity extends AppCompatActivity {
         alert.show();
     }
 }
-

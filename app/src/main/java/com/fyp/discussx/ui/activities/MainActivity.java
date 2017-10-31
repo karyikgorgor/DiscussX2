@@ -2,6 +2,7 @@ package com.fyp.discussx.ui.activities;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,9 +27,6 @@ import com.bumptech.glide.Glide;
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.User;
 import com.fyp.discussx.ui.activities.adapters.TabAdapter;
-import com.fyp.discussx.ui.activities.fragments.GroupListFragment;
-import com.fyp.discussx.ui.activities.fragments.HomeFragment;
-import com.fyp.discussx.ui.activities.fragments.ProfilePageFragment;
 import com.fyp.discussx.utils.BaseActivity;
 import com.fyp.discussx.utils.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
@@ -54,7 +52,21 @@ public class MainActivity extends BaseActivity
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() == null) {
+                    startActivity(new Intent(MainActivity.this, RegisterActivity.class));
+                }
+            }
+        };
+
+        init();
+
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
 
         setSupportActionBar(toolbar);
@@ -87,16 +99,6 @@ public class MainActivity extends BaseActivity
         });
 
 
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null) {
-                    startActivity(new Intent(MainActivity.this, RegisterActivity.class));
-                }
-            }
-        };
-
-        init();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

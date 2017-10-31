@@ -26,6 +26,11 @@ public class Post implements Serializable {
     }
 
 
+    public Post(String postText, String postId) {
+        this.postText = postText;
+        this.postId = postId;
+    }
+
     public Post(User user, String postText, String postImageUrl, String postId, long numLikes, long numDownvotes, long numComments, long replyToComments, long timeCreated, Group group) {
         this.user = user;
         this.postText = postText;

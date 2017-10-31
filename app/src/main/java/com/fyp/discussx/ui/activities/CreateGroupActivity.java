@@ -95,8 +95,8 @@ public class CreateGroupActivity extends AppCompatActivity {
                                         @Override
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                                             progressDialog.dismiss();
-                                            FirebaseUtils.addToMyRecord(Constant.GROUP_CREATED_KEY, uid);
-                                            FirebaseUtils.addToMyRecord(Constant.GROUP_JOINED_KEY,uid);
+                                            FirebaseUtils.addToMyRecord(Constant.GROUP_CREATED_KEY, groupNameEditText.getText().toString());
+                                            FirebaseUtils.addToMyRecord(Constant.GROUP_JOINED_KEY,groupNameEditText.getText().toString());
                                         }
                                     });
                         }
