@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.fyp.discussx.BuildConfig;
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.Post;
 import com.fyp.discussx.ui.activities.PostActivity;
@@ -34,6 +35,9 @@ import com.google.firebase.storage.StorageReference;
 
 
 public class HomeFragment extends Fragment {
+
+    public static final String FRAGMENT_TAG =
+            BuildConfig.APPLICATION_ID + ".HOME_FRAGMENT_TAG";
     private View mRootVIew;
     private FirebaseRecyclerAdapter<Post, PostHolder> mPostAdapter;
     private RecyclerView mPostRecyclerView;

@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -26,6 +27,7 @@ import com.fyp.discussx.R;
 import com.fyp.discussx.model.User;
 import com.fyp.discussx.ui.activities.adapters.TabAdapter;
 import com.fyp.discussx.ui.activities.dialogs.PostCreateDialog;
+import com.fyp.discussx.ui.activities.fragments.HomeFragment;
 import com.fyp.discussx.utils.BaseActivity;
 import com.fyp.discussx.utils.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,6 +49,10 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        addFragment(R.id.container,
+                new HomeFragment(),
+                HomeFragment.FRAGMENT_TAG);
+
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -59,13 +65,16 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
         init();
 
         setContentView(R.layout.activity_inside_group);
-
+        String groupNameX = getIntent().getExtras().getString("groupName");
         Toolbar toolbar = findViewById(R.id.toolbar);
-
         setSupportActionBar(toolbar);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(groupNameX);
+        }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
@@ -130,12 +139,9 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_create_group) {
             Intent intent = new Intent(InsideGroup.this, CreateGroupActivity.class);
             startActivity(intent);
@@ -155,11 +161,11 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+
         int id = item.getItemId();
 
         if (id == R.id.moderator_page) {
-            // Handle the camera action
+
         } else if (id == R.id.settings) {
 
         } else if (id == R.id.moderator_page) {
@@ -168,7 +174,7 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
             signOut();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }

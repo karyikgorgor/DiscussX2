@@ -22,11 +22,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.User;
 import com.fyp.discussx.ui.activities.adapters.TabAdapter;
+import com.fyp.discussx.ui.activities.fragments.GroupListFragment;
 import com.fyp.discussx.utils.BaseActivity;
 import com.fyp.discussx.utils.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,15 +46,14 @@ public class MainActivity extends BaseActivity
     private TextView mEmailTextView;
     private ValueEventListener mUserValueEventListener;
     private DatabaseReference mUserRef;
-    private TabAdapter mTabAdapter;
-    private TabLayout tabLayout;
-    private ViewPager mViewPager;
-    private FragmentTransaction transaction;
 
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setTitle("Discussion Groups");
+        addFragment(R.id.container,
+                new GroupListFragment(),
+                GroupListFragment.FRAGMENT_TAG);
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -71,42 +72,15 @@ public class MainActivity extends BaseActivity
 
         setSupportActionBar(toolbar);
 
-        tabLayout = findViewById(R.id.tabs);
-        tabLayout.addTab(tabLayout.newTab().setText("HOME"));
-        tabLayout.addTab(tabLayout.newTab().setText("GROUPS"));
-        tabLayout.addTab(tabLayout.newTab().setText("PROFILE"));
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-
-        final ViewPager viewPager = findViewById(R.id.pager);
-        final TabAdapter adapter = new TabAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
-        viewPager.setAdapter(adapter);
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
 
 
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         View navHeaderView = navigationView.getHeaderView(0);
@@ -202,6 +176,7 @@ public class MainActivity extends BaseActivity
         } else if (id == R.id.moderator_page) {
 
         }  else if (id == R.id.button_sign_out) {
+            Toast.makeText(this, "wtf", Toast.LENGTH_SHORT).show();
             signOut();
         }
 
@@ -209,6 +184,9 @@ public class MainActivity extends BaseActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
+
 
     @Override
     protected void onStart() {

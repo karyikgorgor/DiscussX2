@@ -3,10 +3,7 @@ package com.fyp.discussx.ui.activities.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.fyp.discussx.BuildConfig;
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.Group;
 import com.fyp.discussx.model.JoinGroup;
@@ -30,6 +28,8 @@ import com.google.firebase.database.DatabaseError;
 import java.util.ArrayList;
 
 public class GroupListFragment extends Fragment {
+    public static final String FRAGMENT_TAG =
+            BuildConfig.APPLICATION_ID + ".GROUP_LIST_FRAGMENT_TAG";
     private View mRootView;
     private ListView groupListView;
     private ArrayList <String> mArrayList = new ArrayList<>();
@@ -47,6 +47,7 @@ public class GroupListFragment extends Fragment {
 
         return mRootView;
     }
+
 
     private void init () {
         groupListView = mRootView.findViewById(R.id.group_list_view);
@@ -87,9 +88,9 @@ public class GroupListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String test = groupListView.getItemAtPosition(position).toString();
-                Toast.makeText(getActivity(), "Group Name: " + test, Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(getActivity(), InsideGroup.class);
+                intent.putExtra("groupName", test);
                 startActivity(intent);
 
             }

@@ -118,8 +118,7 @@ public class FirebaseUtils {
     }
 
     public static DatabaseReference getGroupJoinedFromUserRecordRef () {
-        DatabaseReference x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD)
-                .child(getCurrentUser().getEmail().replace(".",",")).child(Constant.GROUP_JOINED_KEY);
+        DatabaseReference x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD);
         if (FirebaseUtils.getCurrentUser() != null) {
             x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD)
                     .child(getCurrentUser().getEmail().replace(".",",")).child(Constant.GROUP_JOINED_KEY);
