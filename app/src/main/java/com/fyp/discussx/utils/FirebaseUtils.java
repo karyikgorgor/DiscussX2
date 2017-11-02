@@ -164,4 +164,19 @@ public class FirebaseUtils {
         });
     }
 
+    public static void addRecord (String constant, final String id, final String name) {
+        getMyRecordRef().child(constant).runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                mutableData.child(id).setValue(name);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
+            }
+        });
+    }
+
 }
