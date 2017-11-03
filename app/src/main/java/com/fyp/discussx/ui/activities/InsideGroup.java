@@ -45,6 +45,8 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
     private TextView mEmailTextView;
     private ValueEventListener mUserValueEventListener;
     private DatabaseReference mUserRef;
+    private String groupNameX;
+    private String groupNameY;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +68,23 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
         init();
 
         setContentView(R.layout.activity_inside_group);
-        String groupNameX = getIntent().getExtras().getString("groupName");
+
+        if (getIntent().getExtras().getString("groupName") == null) {
+            Toast.makeText(this, "It's null", Toast.LENGTH_SHORT).show();
+        } else {
+            groupNameX = getIntent().getExtras().getString("groupName");
+            groupNameY = groupNameX;
+        }
+
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (getSupportActionBar() != null) {
+        if (getSupportActionBar() != null && groupNameX != null) {
             getSupportActionBar().setTitle(groupNameX);
+
+        } else if (getSupportActionBar() != null && groupNameX == null) {
+            getSupportActionBar().setTitle(groupNameY);
         }
 
 

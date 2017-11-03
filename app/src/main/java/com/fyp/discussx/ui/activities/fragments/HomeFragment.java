@@ -88,7 +88,8 @@ public class HomeFragment extends Fragment {
                 viewHolder.setPostNumDownvotesTextView(String.valueOf(model.getNumDownvotes()));
                 viewHolder.setTIme(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
                 viewHolder.setUsername(model.getUser().getUser());
-                viewHolder.setPostText(model.getPostText());
+                viewHolder.setPostTitle(model.getPostTitle());
+                viewHolder.setPostDesc(model.getPostDesc());
 
                 Glide.with(getActivity())
                         .load(model.getUser().getPhotoUrl())
@@ -242,7 +243,8 @@ public class HomeFragment extends Fragment {
         TextView postOwnerUsernameTextView;
         TextView postTimeCreatedTextView;
         ImageView postDisplayImageVIew;
-        TextView postTextTextView;
+        TextView postTitleTextView;
+        TextView postDescTextView;
         LinearLayout postLikeLayout;
         LinearLayout postDownvotesLayout;
         LinearLayout postCommentLayout;
@@ -263,7 +265,8 @@ public class HomeFragment extends Fragment {
             postNumLikesTextView = (TextView) itemView.findViewById(R.id.tv_upvotes);
             postNumDownvotesTextView = itemView.findViewById(R.id.tv_downvote);
             postNumCommentsTextView = (TextView) itemView.findViewById(R.id.tv_comments);
-            postTextTextView = (TextView) itemView.findViewById(R.id.tv_post_text);
+            postTitleTextView = (TextView) itemView.findViewById(R.id.tv_post_title);
+            postDescTextView = itemView.findViewById(R.id.tv_post_desc);
         }
 
         public void setUsername(String username) {
@@ -286,8 +289,12 @@ public class HomeFragment extends Fragment {
             postNumCommentsTextView.setText(numComments);
         }
 
-        public void setPostText(String text) {
-            postTextTextView.setText(text);
+        public void setPostTitle(String text) {
+            postTitleTextView.setText(text);
+        }
+
+        public void setPostDesc (String text) {
+            postDescTextView.setText(text);
         }
 
     }

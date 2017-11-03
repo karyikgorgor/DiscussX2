@@ -12,7 +12,8 @@ import java.io.Serializable;
 
 public class Post implements Serializable {
     private User user;
-    private String postText;
+    private String postTitle;
+    private String postDesc;
     private String postImageUrl;
     private String postId;
     private long numLikes;
@@ -26,14 +27,10 @@ public class Post implements Serializable {
     }
 
 
-    public Post(String postText, String postId) {
-        this.postText = postText;
-        this.postId = postId;
-    }
-
-    public Post(User user, String postText, String postImageUrl, String postId, long numLikes, long numDownvotes, long numComments, long replyToComments, long timeCreated, Group group) {
+    public Post(User user, String postTitle, String postDesc, String postImageUrl, String postId, long numLikes, long numDownvotes, long numComments, long replyToComments, long timeCreated, Group group) {
         this.user = user;
-        this.postText = postText;
+        this.postTitle = postTitle;
+        this.postDesc = postDesc;
         this.postImageUrl = postImageUrl;
         this.postId = postId;
         this.numLikes = numLikes;
@@ -43,6 +40,7 @@ public class Post implements Serializable {
         this.timeCreated = timeCreated;
         this.group = group;
     }
+
 
     public Group getGroup() {
         return group;
@@ -76,12 +74,20 @@ public class Post implements Serializable {
         this.replyToComments = replyToComments;
     }
 
-    public String getPostText() {
-        return postText;
+    public String getPostTitle() {
+        return postTitle;
     }
 
-    public void setPostText(String postText) {
-        this.postText = postText;
+    public void setPostTitle(String postTitle) {
+        this.postTitle = postTitle;
+    }
+
+    public String getPostDesc() {
+        return postDesc;
+    }
+
+    public void setPostDesc(String postDesc) {
+        this.postDesc = postDesc;
     }
 
     public String getPostImageUrl() {

@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fyp.discussx.R;
+import com.fyp.discussx.model.Group;
 import com.fyp.discussx.model.Post;
 import com.fyp.discussx.model.User;
 import com.fyp.discussx.utils.BaseActivity;
@@ -32,6 +33,7 @@ import com.google.firebase.storage.UploadTask;
 public class CreatePostActivity extends BaseActivity implements View.OnClickListener {
     private static final int RC_PHOTO_PICKER = 1;
     private Post mPost;
+    private Group mGroup;
     private ProgressDialog mProgressDialog;
     private Uri mSelectedUri;
     private ImageView mPostDisplay;
@@ -45,6 +47,7 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
         setContentView(R.layout.activity_create_post);
 
         mPost = new Post();
+        mGroup = new Group();
         mProgressDialog = new ProgressDialog(this);
 
         titleET = findViewById(R.id.title_edittext);
@@ -58,6 +61,8 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
             @Override
             public void onClick(View v) {
                 sendPost();
+                Intent intent = new Intent (CreatePostActivity.this, InsideGroup.class);
+                startActivity(intent);
             }
         });
     }
@@ -75,8 +80,9 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
     }
 
     private void sendPost() {
-        String checkEmptyTitle = titleET.getText().toString();
-        String checkEmptyDesc = descET.getText().toString();
+        final String checkEmptyTitle = titleET.getText().toString();
+        final String checkEmptyDesc = descET.getText().toString();
+
 
         if (!TextUtils.isEmpty(checkEmptyTitle) && !TextUtils.isEmpty(checkEmptyDesc)) {
             mProgressDialog.setMessage("Sending post...");
@@ -90,8 +96,7 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             User user = dataSnapshot.getValue(User.class);
                             final String postId = FirebaseUtils.getUid();
-                            TextView postDialogTextView = findViewById(R.id.post_dialog_edittext);
-                            String text = postDialogTextView.getText().toString();
+
 
                             mPost.setUser(user);
                             mPost.setNumComments(0);
@@ -100,7 +105,10 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
                             mPost.setReplyToComments(0);
                             mPost.setTimeCreated(System.currentTimeMillis());
                             mPost.setPostId(postId);
-                            mPost.setPostText(text);
+                            mPost.setPostTitle(checkEmptyTitle);
+                            mPost.setPostDesc(checkEmptyDesc);
+
+                            mGroup.setPost(mPost);
 
                             if (mSelectedUri != null) {
                                 FirebaseUtils.getImageSRef()
@@ -133,8 +141,12 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
     }
 
     private void addToMyPostList(String postId) {
+        String groupIdClick = getIntent().getExtras().getString("groupId");
+
         FirebaseUtils.getPostRef().child(postId)
                 .setValue(mPost);
+        FirebaseUtils.getGroupCreatedRef(groupIdClick).child(Constant.POST_KEY).child(postId).setValue(mPost);
+
         FirebaseUtils.getMyPostRef().child(postId).setValue(true)
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override

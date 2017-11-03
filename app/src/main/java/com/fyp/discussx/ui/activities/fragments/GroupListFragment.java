@@ -23,6 +23,7 @@ import com.fyp.discussx.R;
 import com.fyp.discussx.model.Group;
 import com.fyp.discussx.model.GroupNameAndId;
 import com.fyp.discussx.model.JoinGroup;
+import com.fyp.discussx.ui.activities.CreatePostActivity;
 import com.fyp.discussx.ui.activities.InsideGroup;
 import com.fyp.discussx.ui.activities.adapters.CustomAdapter;
 import com.fyp.discussx.utils.Constant;
@@ -111,6 +112,7 @@ public class GroupListFragment extends Fragment {
                 Intent intent = new Intent (getActivity(), InsideGroup.class);
                 intent.putExtra("groupName", groupNameClick);
                 intent.putExtra("groupId", groupIdClick);
+
                 startActivity(intent);
             }
         });

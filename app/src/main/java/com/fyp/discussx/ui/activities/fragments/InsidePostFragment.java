@@ -384,12 +384,14 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
 
         TextView postNumLikesTextView = mRootView.findViewById(R.id.tv_upvotes);
         TextView postNumCommentsTextView = mRootView.findViewById(R.id.tv_comments);
-        TextView postTextTextView = mRootView.findViewById(R.id.tv_post_text);
+        TextView postTitleTextView = mRootView.findViewById(R.id.tv_post_title);
+        TextView postDescTextView = mRootView.findViewById(R.id.tv_post_desc);
 
 
         postOwnerUsernameTextView.setText(mPost.getUser().getUser());
         postTimeCreatedTextView.setText(DateUtils.getRelativeTimeSpanString(mPost.getTimeCreated()));
-        postTextTextView.setText(mPost.getPostText());
+        postTitleTextView.setText(mPost.getPostTitle());
+        postDescTextView.setText(mPost.getPostDesc());
         postNumLikesTextView.setText(String.valueOf(mPost.getNumLikes()));
         postNumCommentsTextView.setText(String.valueOf(mPost.getNumComments()));
 

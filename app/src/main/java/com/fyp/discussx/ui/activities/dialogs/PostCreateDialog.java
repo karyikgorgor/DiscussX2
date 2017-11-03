@@ -88,7 +88,7 @@ public class PostCreateDialog extends DialogFragment implements View.OnClickList
                         mPost.setReplyToComments(0);
                         mPost.setTimeCreated(System.currentTimeMillis());
                         mPost.setPostId(postId);
-                        mPost.setPostText(text);
+                      //  mPost.setPostText(text);
 
                         if (mSelectedUri != null) {
                             FirebaseUtils.getImageSRef()
