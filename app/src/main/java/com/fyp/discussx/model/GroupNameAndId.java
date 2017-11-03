@@ -8,9 +8,6 @@ public class GroupNameAndId {
     private String groupName;
     private String groupId;
 
-    public GroupNameAndId() {
-    }
-
     public String getGroupName() {
         return groupName;
     }

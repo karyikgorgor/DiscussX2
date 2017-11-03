@@ -14,11 +14,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.fyp.discussx.BuildConfig;
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.Post;
+import com.fyp.discussx.ui.activities.CreatePostActivity;
 import com.fyp.discussx.ui.activities.PostActivity;
 import com.fyp.discussx.ui.activities.dialogs.PostCreateDialog;
 import com.fyp.discussx.utils.Constant;
@@ -57,8 +59,8 @@ public class HomeFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PostCreateDialog dialog = new PostCreateDialog();
-                dialog.show(getFragmentManager(), null);
+                Intent intent = new Intent (getActivity(), CreatePostActivity.class);
+                startActivity(intent);
             }
         });
         init();

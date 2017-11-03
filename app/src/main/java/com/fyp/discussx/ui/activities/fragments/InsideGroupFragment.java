@@ -11,14 +11,16 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.fyp.discussx.BuildConfig;
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.Post;
+import com.fyp.discussx.ui.activities.CreatePostActivity;
 import com.fyp.discussx.ui.activities.PostActivity;
 import com.fyp.discussx.ui.activities.dialogs.PostCreateDialog;
 import com.fyp.discussx.utils.Constant;
@@ -35,8 +37,11 @@ import com.google.firebase.storage.StorageReference;
 
 
 public class InsideGroupFragment extends Fragment {
+
+    public static final String FRAGMENT_TAG =
+            BuildConfig.APPLICATION_ID + ".INSIDE_GROUP_FRAGMENT_TAG";
     private View mRootVIew;
-    private FirebaseRecyclerAdapter<Post, PostHolderInsideGroup> mPostAdapter;
+    private FirebaseRecyclerAdapter<Post, PostHolder> mPostAdapter;
     private RecyclerView mPostRecyclerView;
 
     public InsideGroupFragment() {
@@ -48,15 +53,14 @@ public class InsideGroupFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mRootVIew = inflater.inflate(R.layout.fragment_inside_group, container, false);
-        FloatingActionButton fab =  mRootVIew.findViewById(R.id.post_button);
-
+        mRootVIew = inflater.inflate(R.layout.fragment_home, container, false);
+        FloatingActionButton fab =  mRootVIew.findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PostCreateDialog dialog = new PostCreateDialog();
-                dialog.show(getFragmentManager(), null);
+                Intent intent = new Intent (getActivity(), CreatePostActivity.class);
+                startActivity(intent);
             }
         });
         init();
@@ -64,21 +68,21 @@ public class InsideGroupFragment extends Fragment {
     }
 
     private void init() {
-        mPostRecyclerView = mRootVIew.findViewById(R.id.recyclerview_post_inside_group);
+        mPostRecyclerView = mRootVIew.findViewById(R.id.recyclerview_post);
         mPostRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         setupAdapter();
         mPostRecyclerView.setAdapter(mPostAdapter);
     }
 
     private void setupAdapter() {
-        mPostAdapter = new FirebaseRecyclerAdapter<Post, PostHolderInsideGroup>(
+        mPostAdapter = new FirebaseRecyclerAdapter<Post, PostHolder>(
                 Post.class,
                 R.layout.row_post,
-                PostHolderInsideGroup.class,
+                PostHolder.class,
                 FirebaseUtils.getPostRef()
         ) {
             @Override
-            protected void populateViewHolder(PostHolderInsideGroup viewHolder, final Post model, int position) {
+            protected void populateViewHolder(PostHolder viewHolder, final Post model, int position) {
                 viewHolder.setNumCOmments(String.valueOf(model.getNumComments()));
                 viewHolder.setNumLikes(String.valueOf(model.getNumLikes()));
                 viewHolder.setPostNumDownvotesTextView(String.valueOf(model.getNumDownvotes()));
@@ -127,6 +131,7 @@ public class InsideGroupFragment extends Fragment {
             }
         };
     }
+
 
     private void onLikeClick(final String postId) {
         FirebaseUtils.getPostLikedRef(postId)
@@ -232,7 +237,7 @@ public class InsideGroupFragment extends Fragment {
                 });
     }
 
-    public static class PostHolderInsideGroup extends RecyclerView.ViewHolder {
+    public static class PostHolder extends RecyclerView.ViewHolder {
         ImageView postOwnerDisplayImageView;
         TextView postOwnerUsernameTextView;
         TextView postTimeCreatedTextView;
@@ -246,7 +251,7 @@ public class InsideGroupFragment extends Fragment {
         TextView postNumCommentsTextView;
 
 
-        public PostHolderInsideGroup(View itemView) {
+        public PostHolder(View itemView) {
             super(itemView);
             postOwnerDisplayImageView = (ImageView) itemView.findViewById(R.id.iv_post_owner_display);
             postOwnerUsernameTextView = (TextView) itemView.findViewById(R.id.tv_post_username);

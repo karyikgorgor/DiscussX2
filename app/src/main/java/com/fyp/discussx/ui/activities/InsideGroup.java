@@ -28,6 +28,7 @@ import com.fyp.discussx.model.User;
 import com.fyp.discussx.ui.activities.adapters.TabAdapter;
 import com.fyp.discussx.ui.activities.dialogs.PostCreateDialog;
 import com.fyp.discussx.ui.activities.fragments.HomeFragment;
+import com.fyp.discussx.ui.activities.fragments.InsideGroupFragment;
 import com.fyp.discussx.utils.BaseActivity;
 import com.fyp.discussx.utils.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
@@ -50,8 +51,8 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
         super.onCreate(savedInstanceState);
 
         addFragment(R.id.container,
-                new HomeFragment(),
-                HomeFragment.FRAGMENT_TAG);
+                new InsideGroupFragment(),
+                InsideGroupFragment.FRAGMENT_TAG);
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override

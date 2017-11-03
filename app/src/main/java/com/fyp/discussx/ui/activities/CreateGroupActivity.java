@@ -96,7 +96,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                                             FirebaseUtils.addRecord(Constant.GROUP_CREATED_KEY,uid,groupNameEditText.getText().toString());
                                             FirebaseUtils.addRecord(Constant.GROUP_JOINED_KEY,uid,groupNameEditText.getText().toString());
-                                            progressDialog.dismiss();
+
                                         }
                                     });
                         }
@@ -108,4 +108,5 @@ public class CreateGroupActivity extends AppCompatActivity {
                     });
         }
     }
+
 }

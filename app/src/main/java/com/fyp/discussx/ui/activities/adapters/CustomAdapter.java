@@ -1,61 +1,73 @@
 package com.fyp.discussx.ui.activities.adapters;
 
-import android.content.Context;
+import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fyp.discussx.R;
-import com.fyp.discussx.model.GroupNameAndId;
+
 
 import java.util.ArrayList;
+import java.util.List;
+
 
 public class CustomAdapter extends BaseAdapter {
-    private ArrayList<GroupNameAndId> listData;
-    private LayoutInflater layoutInflater;
+    private Activity context;
+    private List <String> groupName = new ArrayList<>();
+    private List <String> groupId = new ArrayList<>();
 
-    public CustomAdapter(Context aContext, ArrayList<GroupNameAndId> listData) {
-        this.listData = listData;
-        layoutInflater = LayoutInflater.from(aContext);
+
+    public CustomAdapter (Activity context, List<String> groupName, List<String> groupId) {
+        super();
+        this.context = context;
+        this.groupName = groupName;
+        this.groupId = groupId;
     }
 
     @Override
     public int getCount() {
-        return listData.size();
+        return groupName.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return listData.get(position);
+        return null;
     }
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return 0;
     }
 
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
+
+       ViewHolder viewHolder;
+        LayoutInflater inflater = context.getLayoutInflater();
+
         if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.list_item, null);
-            holder = new ViewHolder();
-            holder.groupName =  convertView.findViewById(R.id.text1);
-            holder.groupId =  convertView.findViewById(R.id.text2);
-            convertView.setTag(holder);
+            convertView = inflater.inflate(R.layout.list_item, null);
+            viewHolder = new ViewHolder();
+            viewHolder.groupName = convertView.findViewById(R.id.text1);
+            viewHolder.groupId = convertView.findViewById(R.id.text2);
+            convertView.setTag(viewHolder);
         } else {
-            holder = (ViewHolder) convertView.getTag();
+            viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        holder.groupName.setText(listData.get(position).getGroupName());
-        holder.groupId.setText(listData.get(position).getGroupId());
+        viewHolder.groupName.setText(groupName.get(position));
+        viewHolder.groupId.setText(groupId.get(position));
 
         return convertView;
     }
-
-    static class ViewHolder {
+    private class ViewHolder  {
         TextView groupName;
         TextView groupId;
     }
+
 }
