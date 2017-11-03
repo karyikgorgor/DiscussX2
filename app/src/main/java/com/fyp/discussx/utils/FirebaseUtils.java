@@ -179,4 +179,9 @@ public class FirebaseUtils {
         });
     }
 
+    public static DatabaseReference getPostFromGroupRef (String groupId) {
+        return FirebaseDatabase.getInstance().getReference(Constant.GROUP_CREATED_KEY).child(groupId)
+                .child(Constant.POST_KEY);
+    }
+
 }

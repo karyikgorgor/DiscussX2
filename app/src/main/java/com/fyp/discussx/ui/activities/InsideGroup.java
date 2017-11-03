@@ -69,24 +69,15 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
 
         setContentView(R.layout.activity_inside_group);
 
-        if (getIntent().getExtras().getString("groupName") == null) {
-            Toast.makeText(this, "It's null", Toast.LENGTH_SHORT).show();
-        } else {
-            groupNameX = getIntent().getExtras().getString("groupName");
-            groupNameY = groupNameX;
-        }
-
+        groupNameX = getIntent().getExtras().getString("groupName");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (getSupportActionBar() != null && groupNameX != null) {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(groupNameX);
 
-        } else if (getSupportActionBar() != null && groupNameX == null) {
-            getSupportActionBar().setTitle(groupNameY);
         }
-
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -99,6 +90,10 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
 
         View navHeaderView = navigationView.getHeaderView(0);
         initNavHeader(navHeaderView);
+    }
+
+    private void tempGroupName (String groupName) {
+        groupNameX = groupName;
     }
 
     private void init() {

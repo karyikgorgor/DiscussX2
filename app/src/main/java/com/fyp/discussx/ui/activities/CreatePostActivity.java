@@ -61,8 +61,7 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
             @Override
             public void onClick(View v) {
                 sendPost();
-                Intent intent = new Intent (CreatePostActivity.this, InsideGroup.class);
-                startActivity(intent);
+
             }
         });
     }
@@ -156,6 +155,7 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
                 });
 
         FirebaseUtils.addToMyRecord(Constant.POST_KEY, postId);
+        finish();
     }
 
     private void selectImage() {

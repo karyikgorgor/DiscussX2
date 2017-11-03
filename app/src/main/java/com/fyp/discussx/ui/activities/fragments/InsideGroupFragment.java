@@ -30,6 +30,7 @@ import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -43,6 +44,7 @@ public class InsideGroupFragment extends Fragment {
     private View mRootVIew;
     private FirebaseRecyclerAdapter<Post, PostHolder> mPostAdapter;
     private RecyclerView mPostRecyclerView;
+    private String groupId;
 
     public InsideGroupFragment() {
 
@@ -54,34 +56,38 @@ public class InsideGroupFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         mRootVIew = inflater.inflate(R.layout.fragment_home, container, false);
-        FloatingActionButton fab =  mRootVIew.findViewById(R.id.fab);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String groupIdX = getActivity().getIntent().getExtras().getString("groupId");
-                Intent intent = new Intent (getActivity(), CreatePostActivity.class);
-                intent.putExtra("groupId", groupIdX);
-                startActivity(intent);
-            }
-        });
         init();
         return mRootVIew;
     }
 
     private void init() {
+        FloatingActionButton fab =  mRootVIew.findViewById(R.id.fab);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                groupId = getActivity().getIntent().getExtras().getString("groupId");
+                Intent intent = new Intent (getActivity(), CreatePostActivity.class);
+                intent.putExtra("groupId", groupId);
+                startActivity(intent);
+            }
+        });
+
         mPostRecyclerView = mRootVIew.findViewById(R.id.recyclerview_post);
         mPostRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        setupAdapter();
+        setupAdapter(getActivity().getIntent().getExtras().getString("groupId"));
         mPostRecyclerView.setAdapter(mPostAdapter);
     }
 
-    private void setupAdapter() {
+    private void setupAdapter(String groupIdX) {
+        Query query = FirebaseUtils.getPostFromGroupRef(groupIdX);
+
         mPostAdapter = new FirebaseRecyclerAdapter<Post, PostHolder>(
                 Post.class,
                 R.layout.row_post,
                 PostHolder.class,
-                FirebaseUtils.getPostRef()
+                query
         ) {
             @Override
             protected void populateViewHolder(PostHolder viewHolder, final Post model, int position) {
