@@ -1,140 +1,108 @@
 package com.fyp.discussx.ui.activities;
 
+
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
 import android.view.View;
-
-import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ListView;
 
-
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.Group;
 import com.fyp.discussx.model.JoinGroup;
 import com.fyp.discussx.model.User;
+import com.fyp.discussx.ui.activities.adapters.CustomAdapter;
 import com.fyp.discussx.utils.Constant;
 import com.fyp.discussx.utils.FirebaseUtils;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class JoinGroupActivity extends AppCompatActivity {
+
     private Button btnJoinGroup;
     private Group mGroup;
+    private ListView groupListView;
+    private CustomAdapter customAdapter;
+    private List<String> groupNameArray = new ArrayList<>();
+    private List <String> groupIdArray = new ArrayList<>();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_group);
 
-        showGroupName();
+        groupListView = findViewById(R.id.all_group_list_view);
+
+        showGroupList();
     }
 
+    private void showGroupList () {
 
-    private void showGroupName () {
-        RecyclerView groupRecyclerView = findViewById(R.id.grouplist_recyclerview);
-        groupRecyclerView.setLayoutManager(new LinearLayoutManager(JoinGroupActivity.this));
-
-        Query query = FirebaseUtils.getGroupCreatedRef().orderByChild(Constant.GROUP_NAME);
-
-        FirebaseRecyclerAdapter<Group, GroupHolder> groupAdapter = new FirebaseRecyclerAdapter<Group, GroupHolder>(
-                Group.class,
-                R.layout.row_groups,
-                GroupHolder.class,
-                query
-        ) {
+        FirebaseUtils.getGroupIdAndName().orderByValue().addChildEventListener(new ChildEventListener() {
             @Override
-            protected void populateViewHolder(GroupHolder viewHolder, Group model, int position) {
-                viewHolder.setGroupName(model.getGroupName());
-                viewHolder.setGroupId(model.getGroupId());
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String groupName = dataSnapshot.getValue(String.class);
+                String groupId = dataSnapshot.getKey();
+
+                groupNameArray.add(groupName);
+                groupIdArray.add(groupId);
+
+                customAdapter = new CustomAdapter(JoinGroupActivity.this, groupNameArray, groupIdArray);
+
+                groupListView.setAdapter(customAdapter);
+                customAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public GroupHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                final GroupHolder viewHolder = super.onCreateViewHolder(parent, viewType);
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-                viewHolder.setOnClickListener(new GroupHolder.ClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        TextView groupIdTv = view.findViewById(R.id.tv_group_id);
-                        TextView groupNameTv = view.findViewById(R.id.tv_group_name);
-                        String groupId = groupIdTv.getText().toString();
-                        String groupName = groupNameTv.getText().toString();
-                        joinGroup(groupId, groupName);
-                    }
-
-                    @Override
-                    public void onItemLongClick(View view, int position) {
-
-                    }
-                });
-                return viewHolder;
             }
-        };
-        groupRecyclerView.setAdapter(groupAdapter);
-    }
 
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-    public static class GroupHolder extends RecyclerView.ViewHolder {
-        TextView groupNameTV;
-        TextView groupIdTV;
+            }
 
-        public GroupHolder(View itemView) {
-            super(itemView);
-            groupNameTV = itemView.findViewById(R.id.tv_group_name);
-            groupIdTV = itemView.findViewById(R.id.tv_group_id);
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mClickListener.onItemClick(v, getAdapterPosition());
-                }
-            });
+            }
 
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    mClickListener.onItemLongClick(v, getAdapterPosition());
-                    return true;
-                }
-            });
-        }
-        public void setGroupId (String groupId) {
-            groupIdTV.setText(groupId);
-        }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
-        public void setGroupName (String groupName) {
-            groupNameTV.setText(groupName);
-        }
+            }
+        });
 
-
-        private GroupHolder.ClickListener mClickListener;
-
-        public interface ClickListener {
-            void onItemClick (View view, int position);
-            void onItemLongClick (View view, int position);
-        }
-
-        public void setOnClickListener (GroupHolder.ClickListener clickListener) {
-            mClickListener = clickListener;
-        }
+        groupListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String groupNameClick = groupNameArray.get(position);
+                String groupIdClick = groupIdArray.get(position);
+                joinGroup(groupIdClick, groupNameClick);
+            }
+        });
 
     }
 
     private void joinGroup (final String groupId, final String groupName) {
+
         AlertDialog.Builder confirmJoinGroup = new AlertDialog.Builder(this);
-        confirmJoinGroup.setTitle("Are you sure to join ");
+        confirmJoinGroup.setTitle("Are you sure to join " + groupName + "?");
         confirmJoinGroup.setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
@@ -164,21 +132,21 @@ public class JoinGroupActivity extends AppCompatActivity {
                                         User user = dataSnapshot.getValue(User.class);
                                         FirebaseUtils.getGroupCreatedRef(groupId).child(Constant.GROUP_MEMBER).child(memberId).setValue(joinGroupInfo);
 
-
                                         FirebaseUtils.getGroupCreatedRef().child(groupId)
                                                 .child(Constant.NUM_MEMBERS_KEY)
                                                 .runTransaction(new Transaction.Handler() {
-                                                    @Override
-                                                    public Transaction.Result doTransaction(MutableData mutableData) {
-                                                        long num = (long) mutableData.getValue();
-                                                        mutableData.setValue(num + 1);
-                                                        return Transaction.success(mutableData);
-                                                    }
+                                                        @Override
+                                                        public Transaction.Result doTransaction(MutableData mutableData) {
+                                                            long num = (long) mutableData.getValue();
+                                                            mutableData.setValue(num + 1);
+                                                            return Transaction.success(mutableData);
+                                                        }
 
                                                     @Override
                                                     public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                                                        FirebaseUtils.addRecord(Constant.GROUP_JOINED_KEY, groupId, groupName);
                                                         progressDialog.dismiss();
-                                                        FirebaseUtils.addToMyRecord(Constant.GROUP_JOINED_KEY, groupName);
+                                                        finish();
                                                     }
                                                 });
                                     }
@@ -200,3 +168,5 @@ public class JoinGroupActivity extends AppCompatActivity {
         alert.show();
     }
 }
+
+

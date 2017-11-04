@@ -31,5 +31,7 @@ public class Constant {
     public static final String MEMBERS_ID_KEY = "membersId";
     public static final String NUM_POSTS_KEY = "numPosts";
 
+    public static final String GROUP_ID_AND_NAME = "group_id_name";
+
 
 }

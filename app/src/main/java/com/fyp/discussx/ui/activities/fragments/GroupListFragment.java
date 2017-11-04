@@ -64,7 +64,6 @@ public class GroupListFragment extends Fragment {
     private void init () {
         groupListView = mRootView.findViewById(R.id.group_list_view);
 
-
         FirebaseUtils.getGroupJoinedFromUserRecordRef().orderByValue().addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {

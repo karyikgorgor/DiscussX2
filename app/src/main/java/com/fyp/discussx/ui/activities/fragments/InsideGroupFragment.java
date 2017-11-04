@@ -107,10 +107,12 @@ public class InsideGroupFragment extends Fragment {
                     viewHolder.postDisplayImageVIew.setVisibility(View.VISIBLE);
                     StorageReference storageReference = FirebaseStorage.getInstance()
                             .getReference(model.getPostImageUrl());
+
                     Glide.with(getActivity())
                             .using(new FirebaseImageLoader())
                             .load(storageReference)
                             .into(viewHolder.postDisplayImageVIew);
+
                 } else {
                     viewHolder.postDisplayImageVIew.setImageBitmap(null);
                     viewHolder.postDisplayImageVIew.setVisibility(View.GONE);
@@ -118,14 +120,14 @@ public class InsideGroupFragment extends Fragment {
                 viewHolder.postLikeLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onLikeClick(model.getPostId());
+                        onLikeClick(getActivity().getIntent().getExtras().getString("groupId"),model.getPostId(), model.getNumLikes());
                     }
                 });
 
                 viewHolder.postDownvotesLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onDownvoteClick(model.getPostId());
+                        onDownvoteClick(getActivity().getIntent().getExtras().getString("groupId"),model.getPostId(), model.getNumDownvotes());
                     }
                 });
 
@@ -134,6 +136,7 @@ public class InsideGroupFragment extends Fragment {
                     public void onClick(View v) {
                         Intent intent = new Intent(getContext(), PostActivity.class);
                         intent.putExtra(Constant.EXTRA_POST, model);
+                        intent.putExtra("groupId", getActivity().getIntent().getExtras().getString("groupId"));
                         startActivity(intent);
                     }
                 });
@@ -142,21 +145,20 @@ public class InsideGroupFragment extends Fragment {
     }
 
 
-    private void onLikeClick(final String postId) {
+    private void onLikeClick(final String groupId, final String postId, final long likes) {
         FirebaseUtils.getPostLikedRef(postId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getValue() != null) {
                             //User liked
-                            FirebaseUtils.getPostRef()
+                            FirebaseUtils.getGroupCreatedRef(groupId)
+                                    .child(Constant.POST_KEY)
                                     .child(postId)
-                                    .child(Constant.NUM_LIKES_KEY)
                                     .runTransaction(new Transaction.Handler() {
                                         @Override
                                         public Transaction.Result doTransaction(MutableData mutableData) {
-                                            long num = (long) mutableData.getValue();
-                                            mutableData.setValue(num - 1);
+                                            mutableData.child(Constant.NUM_LIKES_KEY).setValue(likes - 1);
                                             return Transaction.success(mutableData);
                                         }
 
@@ -166,15 +168,14 @@ public class InsideGroupFragment extends Fragment {
                                                     .setValue(null);
                                         }
                                     });
-                        } else {
-                            FirebaseUtils.getPostRef()
+                        } else  {
+                            FirebaseUtils.getGroupCreatedRef(groupId)
+                                    .child(Constant.POST_KEY)
                                     .child(postId)
-                                    .child(Constant.NUM_LIKES_KEY)
                                     .runTransaction(new Transaction.Handler() {
                                         @Override
                                         public Transaction.Result doTransaction(MutableData mutableData) {
-                                            long num = (long) mutableData.getValue();
-                                            mutableData.setValue(num + 1);
+                                            mutableData.child(Constant.NUM_LIKES_KEY).setValue(likes + 1);
                                             return Transaction.success(mutableData);
                                         }
 
@@ -194,21 +195,20 @@ public class InsideGroupFragment extends Fragment {
                 });
     }
 
-    public void onDownvoteClick (final String postId) {
+    public void onDownvoteClick (final String groupId, final String postId, final long downvotes) {
         FirebaseUtils.getPostDownvotedRef(postId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getValue() != null) {
                             //User downvoted
-                            FirebaseUtils.getPostRef()
+                            FirebaseUtils.getGroupCreatedRef(groupId)
+                                    .child(Constant.POST_KEY)
                                     .child(postId)
-                                    .child(Constant.NUM_DOWNVOTES_KEY)
                                     .runTransaction(new Transaction.Handler() {
                                         @Override
                                         public Transaction.Result doTransaction(MutableData mutableData) {
-                                            long num = (long) mutableData.getValue();
-                                            mutableData.setValue(num - 1);
+                                            mutableData.child(Constant.NUM_DOWNVOTES_KEY).setValue(downvotes - 1);
                                             return Transaction.success(mutableData);
                                         }
 
@@ -219,14 +219,13 @@ public class InsideGroupFragment extends Fragment {
                                         }
                                     });
                         } else {
-                            FirebaseUtils.getPostRef()
+                            FirebaseUtils.getGroupCreatedRef(groupId)
+                                    .child(Constant.POST_KEY)
                                     .child(postId)
-                                    .child(Constant.NUM_DOWNVOTES_KEY)
                                     .runTransaction(new Transaction.Handler() {
                                         @Override
                                         public Transaction.Result doTransaction(MutableData mutableData) {
-                                            long num = (long) mutableData.getValue();
-                                            mutableData.setValue(num + 1);
+                                            mutableData.child(Constant.NUM_DOWNVOTES_KEY).setValue(downvotes + 1);
                                             return Transaction.success(mutableData);
                                         }
 

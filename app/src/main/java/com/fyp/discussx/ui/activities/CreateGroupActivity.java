@@ -17,6 +17,7 @@ import com.fyp.discussx.utils.Constant;
 import com.fyp.discussx.utils.FirebaseUtils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
@@ -81,6 +82,8 @@ public class CreateGroupActivity extends AppCompatActivity {
                             User user = dataSnapshot.getValue(User.class);
                             FirebaseUtils.getGroupCreatedRef(uid).setValue(mGroup);
                             FirebaseUtils.getGroupCreatedRef(uid).child(Constant.GROUP_MEMBER).child(FirebaseUtils.getCurrentUser().getUid()).setValue(mJoinGroup);
+                            FirebaseUtils.addGroupIdAndName(uid, groupNameEditText.getText().toString());
+
 
                             FirebaseUtils.getGroupCreatedRef().child(uid)
                                     .child(Constant.NUM_MEMBERS_KEY)

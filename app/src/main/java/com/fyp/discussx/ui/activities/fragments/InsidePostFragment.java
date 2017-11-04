@@ -458,7 +458,9 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                                     .child(uid)
                                     .setValue(mComment);
 
-                            FirebaseUtils.getPostRef().child(mPost.getPostId())
+                            FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                                    .child(Constant.POST_KEY)
+                                    .child(mPost.getPostId())
                                     .child(Constant.NUM_COMMENTS_KEY)
                                     .runTransaction(new Transaction.Handler() {
                                         @Override

@@ -41,6 +41,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
             case R.id.button_sign_in:
                 showProgressDialog();
                 signIn();
+
         }
     }
 
@@ -58,6 +59,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                 if (result.isSuccess()) {
                     GoogleSignInAccount account = result.getSignInAccount();
                     firebaseAuthWithGoogle(account);
+
                 } else {
                     Toast.makeText(RegisterActivity.this, "Not working1~" , Toast.LENGTH_SHORT).show();
                     dismissProgressDialog();
@@ -95,6 +97,9 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                                         public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                                             mFirebaseUser = mAuth.getCurrentUser();
                                             finish();
+                                            Intent intent = new Intent (RegisterActivity.this, MainActivity.class);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                            startActivity(intent);
                                         }
                                     });
                         } else {

@@ -184,4 +184,23 @@ public class FirebaseUtils {
                 .child(Constant.POST_KEY);
     }
 
+    public static void addGroupIdAndName (final String id, final String name) {
+        FirebaseDatabase.getInstance().getReference(Constant.GROUP_ID_AND_NAME).runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                mutableData.child(id).setValue(name);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
+            }
+        });
+    }
+
+    public static DatabaseReference getGroupIdAndName () {
+        return FirebaseDatabase.getInstance().getReference(Constant.GROUP_ID_AND_NAME);
+    }
+
 }
