@@ -12,9 +12,8 @@ public class Group {
     private String groupName;
     private long numMembers;
     private String membersId;
-    private String moderator;
-    private String creator;
-    private long numPosts;
+    private String creatorId;
+    private String creatorName;
     private long timeCreated;
 
 
@@ -22,20 +21,21 @@ public class Group {
 
     }
 
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 
-    public Group(User user, Post post, String groupId, String groupName, long numMembers, String membersId, String moderator, String creator, long numPosts, long timeCreated) {
+    public Group(User user, Post post, String groupId, String groupName, long numMembers, String membersId, String creatorId, String creatorName, long timeCreated) {
         this.user = user;
         this.post = post;
         this.groupId = groupId;
         this.groupName = groupName;
         this.numMembers = numMembers;
         this.membersId = membersId;
-        this.moderator = moderator;
-        this.creator = creator;
-        this.numPosts = numPosts;
+        this.creatorId = creatorId;
+        this.creatorName = creatorName;
         this.timeCreated = timeCreated;
     }
-
 
     public User getUser() {
         return user;
@@ -57,9 +57,7 @@ public class Group {
         return groupId;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
+
 
     public String getGroupName() {
         return groupName;
@@ -77,13 +75,6 @@ public class Group {
         this.numMembers = numMembers;
     }
 
-    public long getNumPosts() {
-        return numPosts;
-    }
-
-    public void setNumPosts(long numPosts) {
-        this.numPosts = numPosts;
-    }
 
     public String getMembersId() {
         return membersId;
@@ -93,23 +84,23 @@ public class Group {
         this.membersId = membersId;
     }
 
-    public String getModerator() {
-        return moderator;
+
+    public String getCreatorId() {
+        return creatorId;
     }
 
-    public void setModerator(String moderator) {
-        this.moderator = moderator;
-    }
-
-    public String getCreator() {
-        return creator;
-    }
-
-    public void setCreator(String creator) {
-        this.creator = creator;
+    public void setCreatorId(String creatorId) {
+        this.creatorId = creatorId;
     }
 
 
+    public String getCreatorName() {
+        return creatorName;
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
+    }
 
     public long getTimeCreated() {
         return timeCreated;

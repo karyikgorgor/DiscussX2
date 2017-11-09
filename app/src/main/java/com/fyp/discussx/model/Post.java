@@ -16,7 +16,7 @@ public class Post implements Serializable {
     private String postDesc;
     private String postImageUrl;
     private String postId;
-    private long numLikes;
+    private long numUpvotes;
     private long numDownvotes;
     private long numComments;
     private long replyToComments;
@@ -26,14 +26,21 @@ public class Post implements Serializable {
     public Post() {
     }
 
+    public void setPostTitle(String postTitle) {
+        this.postTitle = postTitle;
+    }
 
-    public Post(User user, String postTitle, String postDesc, String postImageUrl, String postId, long numLikes, long numDownvotes, long numComments, long replyToComments, long timeCreated, Group group) {
+    public void setPostDesc(String postDesc) {
+        this.postDesc = postDesc;
+    }
+
+    public Post(User user, String postTitle, String postDesc, String postImageUrl, String postId, long numUpvotes, long numDownvotes, long numComments, long replyToComments, long timeCreated, Group group) {
         this.user = user;
         this.postTitle = postTitle;
         this.postDesc = postDesc;
         this.postImageUrl = postImageUrl;
         this.postId = postId;
-        this.numLikes = numLikes;
+        this.numUpvotes = numUpvotes;
         this.numDownvotes = numDownvotes;
         this.numComments = numComments;
         this.replyToComments = replyToComments;
@@ -78,17 +85,12 @@ public class Post implements Serializable {
         return postTitle;
     }
 
-    public void setPostTitle(String postTitle) {
-        this.postTitle = postTitle;
-    }
 
     public String getPostDesc() {
         return postDesc;
     }
 
-    public void setPostDesc(String postDesc) {
-        this.postDesc = postDesc;
-    }
+
 
     public String getPostImageUrl() {
         return postImageUrl;
@@ -106,12 +108,12 @@ public class Post implements Serializable {
         this.postId = postId;
     }
 
-    public long getNumLikes() {
-        return numLikes;
+    public long getNumUpvotes() {
+        return numUpvotes;
     }
 
-    public void setNumLikes(long numLikes) {
-        this.numLikes = numLikes;
+    public void setNumUpvotes(long numUpvotes) {
+        this.numUpvotes = numUpvotes;
     }
 
     public long getNumComments() {

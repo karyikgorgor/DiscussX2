@@ -83,7 +83,7 @@ public class FirebaseUtils {
     }
 
     public static String getUid(){
-        String path = FirebaseDatabase.getInstance().getReference().push().toString();
+        String path =  FirebaseDatabase.getInstance().getReference().push().toString();
         return path.substring(path.lastIndexOf("/") + 1);
     }
 
@@ -102,7 +102,8 @@ public class FirebaseUtils {
     }
 
     public static DatabaseReference getGroupCreatedRef () {
-        return  FirebaseDatabase.getInstance().getReference(Constant.GROUP_CREATED_KEY);
+        return  FirebaseDatabase.getInstance().
+                getReference(Constant.GROUP_CREATED_KEY);
     }
 
     public static DatabaseReference getGroupCreatedRef (String groupId) {
@@ -201,6 +202,11 @@ public class FirebaseUtils {
 
     public static DatabaseReference getGroupIdAndName () {
         return FirebaseDatabase.getInstance().getReference(Constant.GROUP_ID_AND_NAME);
+    }
+
+    public static DatabaseReference getExample () {
+        return FirebaseDatabase.getInstance()
+                .getReference(Constant.EXAMPLE);
     }
 
 }

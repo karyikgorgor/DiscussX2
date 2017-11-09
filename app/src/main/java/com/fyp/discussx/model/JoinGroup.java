@@ -12,6 +12,11 @@ public class JoinGroup {
     private String groupName;
 
     public JoinGroup() {
+
+    }
+
+    public void setMembersId(String memberId) {
+        this.membersId = memberId;
     }
 
     public JoinGroup(String membersId, Long timeJoined, String email, String userName, String groupName) {
@@ -50,9 +55,6 @@ public class JoinGroup {
         return membersId;
     }
 
-    public void setMembersId(String memberId) {
-        this.membersId = memberId;
-    }
 
     public Long getTimeJoined() {
         return timeJoined;

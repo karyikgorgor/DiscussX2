@@ -92,7 +92,7 @@ public class InsideGroupFragment extends Fragment {
             @Override
             protected void populateViewHolder(PostHolder viewHolder, final Post model, int position) {
                 viewHolder.setNumCOmments(String.valueOf(model.getNumComments()));
-                viewHolder.setNumLikes(String.valueOf(model.getNumLikes()));
+                viewHolder.setNumLikes(String.valueOf(model.getNumUpvotes()));
                 viewHolder.setPostNumDownvotesTextView(String.valueOf(model.getNumDownvotes()));
                 viewHolder.setTIme(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
                 viewHolder.setUsername(model.getUser().getUser());
@@ -120,7 +120,7 @@ public class InsideGroupFragment extends Fragment {
                 viewHolder.postLikeLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onLikeClick(getActivity().getIntent().getExtras().getString("groupId"),model.getPostId(), model.getNumLikes());
+                        onLikeClick(getActivity().getIntent().getExtras().getString("groupId"),model.getPostId(), model.getNumUpvotes());
                     }
                 });
 
@@ -158,7 +158,7 @@ public class InsideGroupFragment extends Fragment {
                                     .runTransaction(new Transaction.Handler() {
                                         @Override
                                         public Transaction.Result doTransaction(MutableData mutableData) {
-                                            mutableData.child(Constant.NUM_LIKES_KEY).setValue(likes - 1);
+                                            mutableData.child(Constant.NUM_UPVOTES_KEY).setValue(likes - 1);
                                             return Transaction.success(mutableData);
                                         }
 
@@ -175,7 +175,7 @@ public class InsideGroupFragment extends Fragment {
                                     .runTransaction(new Transaction.Handler() {
                                         @Override
                                         public Transaction.Result doTransaction(MutableData mutableData) {
-                                            mutableData.child(Constant.NUM_LIKES_KEY).setValue(likes + 1);
+                                            mutableData.child(Constant.NUM_UPVOTES_KEY).setValue(likes + 1);
                                             return Transaction.success(mutableData);
                                         }
 

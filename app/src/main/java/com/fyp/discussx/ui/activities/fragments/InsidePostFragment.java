@@ -94,8 +94,6 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
     }
 
 
-
-
     //display comments list
     private void initCommentSection() {
         RecyclerView commentRecyclerView = mRootView.findViewById(R.id.comment_recyclerview);
@@ -105,7 +103,10 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 Comment.class,
                 R.layout.row_comment,
                 CommentHolder.class,
-                FirebaseUtils.getCommentRef(mPost.getPostId())
+                FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                        .child(Constant.POST_KEY)
+                        .child(mPost.getPostId())
+                        .child(Constant.COMMENTS_KEY)
         ) {
             @Override
             protected void populateViewHolder(final CommentHolder viewHolder, final Comment model, int position) {
@@ -193,7 +194,10 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         RecyclerView commentRecyclerView = mRootView.findViewById(R.id.comment_recyclerview);
         commentRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        Query query = FirebaseUtils.getCommentRef(postId).orderByChild(Constant.NUM_COMMENT_LIKES_KEY);
+        Query query = FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                .child(Constant.POST_KEY)
+                .child(mPost.getPostId())
+                .child(Constant.COMMENTS_KEY).orderByChild(Constant.NUM_COMMENT_LIKES_KEY);
 
         FirebaseRecyclerAdapter<Comment, CommentHolder> commentAdapter = new FirebaseRecyclerAdapter<Comment, CommentHolder>(
                 Comment.class,
@@ -240,7 +244,10 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         RecyclerView commentRecyclerView = mRootView.findViewById(R.id.comment_recyclerview);
         commentRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        Query query = FirebaseUtils.getCommentRef(postId).orderByChild(Constant.NUM_COMMENT_DOWNVOTES_KEY);
+        Query query = FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                .child(Constant.POST_KEY)
+                .child(mPost.getPostId())
+                .child(Constant.COMMENTS_KEY).orderByChild(Constant.NUM_COMMENT_DOWNVOTES_KEY);
 
         FirebaseRecyclerAdapter<Comment, CommentHolder> commentAdapter = new FirebaseRecyclerAdapter<Comment, CommentHolder>(
                 Comment.class,
@@ -288,7 +295,11 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         RecyclerView commentRecyclerView = mRootView.findViewById(R.id.comment_recyclerview);
         commentRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        Query query = FirebaseUtils.getCommentRef(postId).orderByChild(Constant.COMMENT_TIME_CREATED);
+        Query query = FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                .child(Constant.POST_KEY)
+                .child(mPost.getPostId())
+                .child(Constant.COMMENTS_KEY)
+                .orderByChild(Constant.COMMENT_TIME_CREATED);
 
         FirebaseRecyclerAdapter<Comment, CommentHolder> commentAdapter = new FirebaseRecyclerAdapter<Comment, CommentHolder>(
                 Comment.class,
@@ -337,7 +348,10 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         RecyclerView commentRecyclerView = mRootView.findViewById(R.id.comment_recyclerview);
         commentRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        Query query = FirebaseUtils.getCommentRef(postId).orderByChild(Constant.COMMENT_TIME_CREATED);
+        Query query =FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                .child(Constant.POST_KEY)
+                .child(mPost.getPostId())
+                .child(Constant.COMMENTS_KEY).orderByChild(Constant.COMMENT_TIME_CREATED);
 
         FirebaseRecyclerAdapter<Comment, CommentHolder> commentAdapter = new FirebaseRecyclerAdapter<Comment, CommentHolder>(
                 Comment.class,
@@ -392,7 +406,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         postTimeCreatedTextView.setText(DateUtils.getRelativeTimeSpanString(mPost.getTimeCreated()));
         postTitleTextView.setText(mPost.getPostTitle());
         postDescTextView.setText(mPost.getPostDesc());
-        postNumLikesTextView.setText(String.valueOf(mPost.getNumLikes()));
+        postNumLikesTextView.setText(String.valueOf(mPost.getNumUpvotes()));
         postNumCommentsTextView.setText(String.valueOf(mPost.getNumComments()));
 
 
@@ -455,6 +469,13 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             User user = dataSnapshot.getValue(User.class);
                             FirebaseUtils.getCommentRef(mPost.getPostId())
+                                    .child(uid)
+                                    .setValue(mComment);
+
+                            FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                                    .child(Constant.POST_KEY)
+                                    .child(mPost.getPostId())
+                                    .child(Constant.COMMENTS_KEY)
                                     .child(uid)
                                     .setValue(mComment);
 
@@ -542,7 +563,10 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getValue() != null) {
                             //User liked
-                            FirebaseUtils.getCommentRef(postId)
+                            FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                                    .child(Constant.POST_KEY)
+                                    .child(postId)
+                                    .child(Constant.COMMENTS_KEY)
                                     .child(commentId)
                                     .child(Constant.NUM_COMMENT_LIKES_KEY)
                                     .runTransaction(new Transaction.Handler() {
@@ -560,7 +584,10 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                                         }
                                     });
                         } else {
-                            FirebaseUtils.getCommentRef(postId)
+                            FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                                    .child(Constant.POST_KEY)
+                                    .child(postId)
+                                    .child(Constant.COMMENTS_KEY)
                                     .child(commentId)
                                     .child(Constant.NUM_COMMENT_LIKES_KEY)
                                     .runTransaction(new Transaction.Handler() {
@@ -594,7 +621,10 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getValue() != null) {
                             //User liked
-                            FirebaseUtils.getCommentRef(postId)
+                            FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                                    .child(Constant.POST_KEY)
+                                    .child(postId)
+                                    .child(Constant.COMMENTS_KEY)
                                     .child(commentId)
                                     .child(Constant.NUM_COMMENT_DOWNVOTES_KEY)
                                     .runTransaction(new Transaction.Handler() {
@@ -612,7 +642,10 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                                         }
                                     });
                         } else {
-                            FirebaseUtils.getCommentRef(postId)
+                            FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                                    .child(Constant.POST_KEY)
+                                    .child(postId)
+                                    .child(Constant.COMMENTS_KEY)
                                     .child(commentId)
                                     .child(Constant.NUM_COMMENT_DOWNVOTES_KEY)
                                     .runTransaction(new Transaction.Handler() {

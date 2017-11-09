@@ -118,18 +118,14 @@ public class JoinGroupActivity extends AppCompatActivity {
                         String email = FirebaseUtils.getCurrentUser().getEmail();
                         String userName = FirebaseUtils.getCurrentUser().getDisplayName();
 
-                        final JoinGroup joinGroupInfo = new JoinGroup(memberId, timeJoined, email, userName, groupName);
+                        final JoinGroup joinGroupInfo = new JoinGroup();
                         joinGroupInfo.setMembersId(memberId);
                         joinGroupInfo.setTimeJoined(timeJoined);
                         joinGroupInfo.setEmail(email);
                         joinGroupInfo.setUserName(userName);
                         joinGroupInfo.setGroupName(groupName);
 
-                        FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",","))
-                                .addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        User user = dataSnapshot.getValue(User.class);
+
                                         FirebaseUtils.getGroupCreatedRef(groupId).child(Constant.GROUP_MEMBER).child(memberId).setValue(joinGroupInfo);
 
                                         FirebaseUtils.getGroupCreatedRef().child(groupId)
@@ -149,13 +145,7 @@ public class JoinGroupActivity extends AppCompatActivity {
                                                         finish();
                                                     }
                                                 });
-                                    }
 
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
 
                     }
                 }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {

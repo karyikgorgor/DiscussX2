@@ -89,19 +89,22 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
             mProgressDialog.setIndeterminate(true);
             mProgressDialog.show();
 
-            FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".", ","))
+            FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail()
+                    .replace(".", ","))
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             User user = dataSnapshot.getValue(User.class);
-                            final String postId = FirebaseUtils.getUid();
 
+                            Post mPost = new Post();
+                            Group mGroup = new Group();
+
+                            final String postId = FirebaseUtils.getUid();
 
                             mPost.setUser(user);
                             mPost.setNumComments(0);
-                            mPost.setNumLikes(0);
+                            mPost.setNumUpvotes(0);
                             mPost.setNumDownvotes(0);
-                            mPost.setReplyToComments(0);
                             mPost.setTimeCreated(System.currentTimeMillis());
                             mPost.setPostId(postId);
                             mPost.setPostTitle(checkEmptyTitle);
@@ -109,7 +112,17 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
 
                             mGroup.setPost(mPost);
 
-                            if (mSelectedUri != null) {
+                            String groupId = getIntent()
+                                    .getExtras().getString("groupId");
+
+                            FirebaseUtils.getGroupCreatedRef(groupId)
+                                    .child(Constant.POST_KEY)
+                                    .child(postId).setValue(mPost);
+
+                            mProgressDialog.dismiss();
+                            finish();
+
+                         /*  if (mSelectedUri != null) {
                                 FirebaseUtils.getImageSRef()
                                         .child(mSelectedUri.getLastPathSegment())
                                         .putFile(mSelectedUri)
@@ -119,17 +132,17 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
                                                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                                         String url = Constant.POST_IMAGES + "/" + mSelectedUri.getLastPathSegment();
                                                         mPost.setPostImageUrl(url);
-                                                        addToMyPostList(postId);
+                                                        createPost(postId);
                                                     }
                                                 });
                             } else {
-                                addToMyPostList(postId);
-                            }
+
+                            }*/
                         }
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-                            mProgressDialog.dismiss();
+
                         }
                     });
         } else {
@@ -139,12 +152,15 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
 
     }
 
-    private void addToMyPostList(String postId) {
-        String groupIdClick = getIntent().getExtras().getString("groupId");
+    private void createPost(String postId) {
+
+
+
+
 
         FirebaseUtils.getPostRef().child(postId)
                 .setValue(mPost);
-        FirebaseUtils.getGroupCreatedRef(groupIdClick).child(Constant.POST_KEY).child(postId).setValue(mPost);
+
 
         FirebaseUtils.getMyPostRef().child(postId).setValue(true)
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {

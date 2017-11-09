@@ -84,7 +84,7 @@ public class HomeFragment extends Fragment {
             @Override
             protected void populateViewHolder(PostHolder viewHolder, final Post model, int position) {
                 viewHolder.setNumCOmments(String.valueOf(model.getNumComments()));
-                viewHolder.setNumLikes(String.valueOf(model.getNumLikes()));
+                viewHolder.setNumLikes(String.valueOf(model.getNumUpvotes()));
                 viewHolder.setPostNumDownvotesTextView(String.valueOf(model.getNumDownvotes()));
                 viewHolder.setTIme(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
                 viewHolder.setUsername(model.getUser().getUser());
@@ -143,7 +143,7 @@ public class HomeFragment extends Fragment {
                             //User liked
                             FirebaseUtils.getPostRef()
                                     .child(postId)
-                                    .child(Constant.NUM_LIKES_KEY)
+                                    .child(Constant.NUM_UPVOTES_KEY)
                                     .runTransaction(new Transaction.Handler() {
                                         @Override
                                         public Transaction.Result doTransaction(MutableData mutableData) {
@@ -161,7 +161,7 @@ public class HomeFragment extends Fragment {
                         } else {
                             FirebaseUtils.getPostRef()
                                     .child(postId)
-                                    .child(Constant.NUM_LIKES_KEY)
+                                    .child(Constant.NUM_UPVOTES_KEY)
                                     .runTransaction(new Transaction.Handler() {
                                         @Override
                                         public Transaction.Result doTransaction(MutableData mutableData) {
