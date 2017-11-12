@@ -37,16 +37,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-public class InsideGroup extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class InsideGroup extends BaseActivity{
 
     private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private ImageView mDisplayImageView;
-    private TextView mNameTextView;
-    private TextView mEmailTextView;
-    private ValueEventListener mUserValueEventListener;
     private DatabaseReference mUserRef;
     private String groupNameX;
-    private String groupNameY;
+
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,27 +70,15 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(groupNameX);
-
         }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        View navHeaderView = navigationView.getHeaderView(0);
-        initNavHeader(navHeaderView);
     }
 
-    private void tempGroupName (String groupName) {
-        groupNameX = groupName;
-    }
 
     private void init() {
 
@@ -102,42 +86,7 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
             mUserRef = FirebaseUtils.getUserRef(mFirebaseUser.getEmail().replace(".", ","));
         }
     }
-    private void initNavHeader(View view) {
-        mDisplayImageView = (ImageView) view.findViewById(R.id.imageView_display);
-        mNameTextView = (TextView) view.findViewById(R.id.textview_name);
-        mEmailTextView = (TextView) view.findViewById(R.id.textView_email);
 
-        mUserValueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    User users = dataSnapshot.getValue(User.class);
-                    Glide.with(InsideGroup.this)
-                            .load(users.getPhotoUrl())
-                            .into(mDisplayImageView);
-
-                    mNameTextView.setText(users.getUser());
-                    mEmailTextView.setText(users.getEmail());
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-    }
-
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -162,48 +111,13 @@ public class InsideGroup extends BaseActivity implements NavigationView.OnNaviga
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             finish();
             startActivity(intent);
+        } else if (item.getItemId() == android.R.id.home) {
+            this.finish();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
 
-        int id = item.getItemId();
-
-        if (id == R.id.moderator_page) {
-
-        } else if (id == R.id.settings) {
-
-        } else if (id == R.id.moderator_page) {
-
-        } else if (id == R.id.button_sign_out) {
-            signOut();
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthStateListener);
-        if (mUserRef != null) {
-            mUserRef.addValueEventListener(mUserValueEventListener);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mAuthStateListener != null)
-            mAuth.removeAuthStateListener(mAuthStateListener);
-        if (mUserRef != null)
-            mUserRef.removeEventListener(mUserValueEventListener);
-    }
 }

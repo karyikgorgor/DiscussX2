@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -20,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,6 +67,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
     private EditText mCommentEditTextView;
     private Comment mComment;
     private Button btnCommentSort;
+
     private static final String TAG = "PostActivity";
     public InsidePostFragment() {
 
@@ -77,7 +80,9 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         // Inflate the layout for this fragment
         mRootView  =  inflater.inflate(R.layout.fragment_inside_post, container, false);
 
+
         btnCommentSort = mRootView.findViewById(R.id.comment_sort);
+
 
         if (savedInstanceState != null) {
             mComment = (Comment) savedInstanceState.getSerializable(BUNDLE_COMMENT);
@@ -93,6 +98,12 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         return mRootView;
     }
 
+    private void showPopup (View v) {
+        PopupMenu popupMenu = new PopupMenu(getActivity(), v);
+        MenuInflater menuInflater = popupMenu.getMenuInflater();
+        menuInflater.inflate(R.menu.comment_report, popupMenu.getMenu());
+        popupMenu.show();
+    }
 
     //display comments list
     private void initCommentSection() {
@@ -113,7 +124,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 viewHolder.setUsername(model.getUserName());
                 viewHolder.setComment(model.getComment());
                 viewHolder.setTime(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
-                viewHolder.setCommentNumLikes(String.valueOf(model.getNumCommentLikes()));
+                viewHolder.setCommentNumUpvotes(String.valueOf(model.getNumCommentUpvotes()));
                 viewHolder.setCommentNumDownvotes(String.valueOf(model.getNumCommentDownvotes()));
 
                 Glide.with(getActivity())
@@ -123,7 +134,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onCommentLikeClick(mPost.getPostId(), model.getCommentId());
+                        onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
                     }
                 });
 
@@ -131,6 +142,13 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                     @Override
                     public void onClick(View v) {
                         onCommentDownvotedClick(mPost.getPostId(), model.getCommentId());
+                    }
+                });
+
+                viewHolder.reportCommentLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showPopup(v);
                     }
                 });
 
@@ -193,11 +211,13 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
     private void commentSortByMostUpvotes (String postId) {
         RecyclerView commentRecyclerView = mRootView.findViewById(R.id.comment_recyclerview);
         commentRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        String groupId = getActivity().getIntent().getExtras().getString("groupId");
 
-        Query query = FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+        Query query = FirebaseUtils.getGroupCreatedRef(groupId)
                 .child(Constant.POST_KEY)
                 .child(mPost.getPostId())
-                .child(Constant.COMMENTS_KEY).orderByChild(Constant.NUM_COMMENT_LIKES_KEY);
+                .child(Constant.COMMENTS_KEY)
+                .orderByChild(Constant.NUM_COMMENT_UPVOTES_KEY);
 
         FirebaseRecyclerAdapter<Comment, CommentHolder> commentAdapter = new FirebaseRecyclerAdapter<Comment, CommentHolder>(
                 Comment.class,
@@ -216,7 +236,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 viewHolder.setUsername(model.getUserName());
                 viewHolder.setComment(model.getComment());
                 viewHolder.setTime(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
-                viewHolder.setCommentNumLikes(String.valueOf(model.getNumCommentLikes()));
+                viewHolder.setCommentNumUpvotes(String.valueOf(model.getNumCommentUpvotes()));
                 viewHolder.setCommentNumDownvotes(String.valueOf(model.getNumCommentDownvotes()));
 
                 Glide.with(getActivity())
@@ -226,7 +246,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onCommentLikeClick(mPost.getPostId(), model.getCommentId());
+                        onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
                     }
                 });
                 viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
@@ -247,7 +267,8 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         Query query = FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
                 .child(Constant.POST_KEY)
                 .child(mPost.getPostId())
-                .child(Constant.COMMENTS_KEY).orderByChild(Constant.NUM_COMMENT_DOWNVOTES_KEY);
+                .child(Constant.COMMENTS_KEY)
+                .orderByChild(Constant.NUM_COMMENT_DOWNVOTES_KEY);
 
         FirebaseRecyclerAdapter<Comment, CommentHolder> commentAdapter = new FirebaseRecyclerAdapter<Comment, CommentHolder>(
                 Comment.class,
@@ -266,7 +287,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 viewHolder.setUsername(model.getUserName());
                 viewHolder.setComment(model.getComment());
                 viewHolder.setTime(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
-                viewHolder.setCommentNumLikes(String.valueOf(model.getNumCommentLikes()));
+                viewHolder.setCommentNumUpvotes(String.valueOf(model.getNumCommentUpvotes()));
                 viewHolder.setCommentNumDownvotes(String.valueOf(model.getNumCommentDownvotes()));
 
                 Glide.with(getActivity())
@@ -276,7 +297,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onCommentLikeClick(mPost.getPostId(), model.getCommentId());
+                        onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
                     }
                 });
                 viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
@@ -318,7 +339,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 viewHolder.setUsername(model.getUserName());
                 viewHolder.setComment(model.getComment());
                 viewHolder.setTime(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
-                viewHolder.setCommentNumLikes(String.valueOf(model.getNumCommentLikes()));
+                viewHolder.setCommentNumUpvotes(String.valueOf(model.getNumCommentUpvotes()));
                 viewHolder.setCommentNumDownvotes(String.valueOf(model.getNumCommentDownvotes()));
 
                 Glide.with(getActivity())
@@ -328,7 +349,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onCommentLikeClick(mPost.getPostId(), model.getCommentId());
+                        onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
                     }
                 });
                 viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
@@ -365,7 +386,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 viewHolder.setUsername(model.getUserName());
                 viewHolder.setComment(model.getComment());
                 viewHolder.setTime(DateUtils.getRelativeTimeSpanString(model.getTimeCreated()));
-                viewHolder.setCommentNumLikes(String.valueOf(model.getNumCommentLikes()));
+                viewHolder.setCommentNumUpvotes(String.valueOf(model.getNumCommentUpvotes()));
                 viewHolder.setCommentNumDownvotes(String.valueOf(model.getNumCommentDownvotes()));
 
                 Glide.with(getActivity())
@@ -375,7 +396,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onCommentLikeClick(mPost.getPostId(), model.getCommentId());
+                        onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
                     }
                 });
                 viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
@@ -459,7 +480,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
             mComment.setCommentId(uid);
             mComment.setComment(mCommentEditTextView.getText().toString());
             mComment.setTimeCreated(System.currentTimeMillis());
-            mComment.setNumCommentLikes(0);
+            mComment.setNumCommentUpvotes(0);
             mComment.setNumCommentDownvotes(0);
             mComment.setUserName(FirebaseUtils.getCurrentUser().getDisplayName());
 
@@ -514,6 +535,8 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
     public static class CommentHolder extends RecyclerView.ViewHolder {
         View mView;
         ImageView commentOwnerDisplay;
+        ImageView reportCommentDisplay;
+        LinearLayout reportCommentLayout;
         TextView usernameTextView;
         TextView timeTextView;
         TextView commentTextView;
@@ -521,6 +544,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         TextView numDownvotesTextView;
         LinearLayout commentLikeLayout;
         LinearLayout commentDownvoteLayout;
+
 
         public CommentHolder(View itemView) {
             super(itemView);
@@ -533,6 +557,8 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
             numDownvotesTextView = mView.findViewById(R.id.comment_tv_downvote);
             commentLikeLayout = mView.findViewById(R.id.comment_like_layout);
             commentDownvoteLayout = mView.findViewById(R.id.comment_downvote_layout);
+            reportCommentLayout = mView.findViewById(R.id.report_comment_layout);
+            reportCommentDisplay = mView.findViewById(R.id.report_comment);
         }
 
         public void setUsername(String username) {
@@ -547,7 +573,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
             commentTextView.setText(comment);
         }
 
-        public void setCommentNumLikes (String numLikes) {
+        public void setCommentNumUpvotes (String numLikes) {
             numLikesTextView.setText(numLikes);
         }
 
@@ -556,8 +582,11 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    private void onCommentLikeClick(final String postId, final String commentId) {
-        FirebaseUtils.getCommentLikedRef(postId, commentId)
+    private void onCommentUpvoteClick(final String postId,
+                                      final String commentId) {
+
+
+        FirebaseUtils.getCommentUpvotedRef(postId, commentId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -568,7 +597,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                                     .child(postId)
                                     .child(Constant.COMMENTS_KEY)
                                     .child(commentId)
-                                    .child(Constant.NUM_COMMENT_LIKES_KEY)
+                                    .child(Constant.NUM_COMMENT_UPVOTES_KEY)
                                     .runTransaction(new Transaction.Handler() {
                                         @Override
                                         public Transaction.Result doTransaction(MutableData mutableData) {
@@ -579,7 +608,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
 
                                         @Override
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                                            FirebaseUtils.getCommentLikedRef(postId, commentId)
+                                            FirebaseUtils.getCommentUpvotedRef(postId, commentId)
                                                     .setValue(null);
                                         }
                                     });
@@ -589,7 +618,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                                     .child(postId)
                                     .child(Constant.COMMENTS_KEY)
                                     .child(commentId)
-                                    .child(Constant.NUM_COMMENT_LIKES_KEY)
+                                    .child(Constant.NUM_COMMENT_UPVOTES_KEY)
                                     .runTransaction(new Transaction.Handler() {
                                         @Override
                                         public Transaction.Result doTransaction(MutableData mutableData) {
@@ -600,7 +629,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
 
                                         @Override
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                                            FirebaseUtils.getCommentLikedRef(postId, commentId)
+                                            FirebaseUtils.getCommentUpvotedRef(postId, commentId)
                                                     .setValue(true);
                                         }
                                     });
@@ -614,7 +643,10 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 });
     }
 
-    private void onCommentDownvotedClick(final String postId, final String commentId) {
+    private void onCommentDownvotedClick(final String postId,
+                                         final String commentId) {
+
+
         FirebaseUtils.getCommentDownvotedRef(postId, commentId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override

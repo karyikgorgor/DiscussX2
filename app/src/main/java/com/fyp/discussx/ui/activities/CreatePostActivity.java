@@ -154,10 +154,6 @@ public class CreatePostActivity extends BaseActivity implements View.OnClickList
 
     private void createPost(String postId) {
 
-
-
-
-
         FirebaseUtils.getPostRef().child(postId)
                 .setValue(mPost);
 

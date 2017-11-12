@@ -14,22 +14,25 @@ public class Comment implements Serializable {
     private String userName;
     private String commentId;
     private long timeCreated;
-    private long numCommentLikes;
+    private long numCommentUpvotes;
     private long numCommentDownvotes;
+    private long invertedNumCommentUpvotes;
+    private long invertedNumCommentDownvotes;
     private String replyToComment;
     private String comment;
     private Group group;
+    private long invertedTimeCreated;
 
     public Comment() {
     }
 
 
-    public Comment(User user, String userName, String commentId, long timeCreated, long numCommentLikes, long numCommentDownvotes, String replyToComment, String comment, Group group) {
+    public Comment(User user, String userName, String commentId, long timeCreated, long numCommentUpvotes, long numCommentDownvotes, String replyToComment, String comment, Group group) {
         this.user = user;
         this.userName = userName;
         this.commentId = commentId;
         this.timeCreated = timeCreated;
-        this.numCommentLikes = numCommentLikes;
+        this.numCommentUpvotes = numCommentUpvotes;
         this.numCommentDownvotes = numCommentDownvotes;
         this.replyToComment = replyToComment;
         this.comment = comment;
@@ -43,6 +46,7 @@ public class Comment implements Serializable {
     public void setGroup(Group group) {
         this.group = group;
     }
+
 
     public String getUserName() {
         return userName;
@@ -83,12 +87,12 @@ public class Comment implements Serializable {
         this.comment = comment;
     }
 
-    public long getNumCommentLikes() {
-        return numCommentLikes;
+    public long getNumCommentUpvotes() {
+        return numCommentUpvotes;
     }
 
-    public void setNumCommentLikes(long numCommentLikes) {
-        this.numCommentLikes = numCommentLikes;
+    public void setNumCommentUpvotes(long numCommentUpvotes) {
+        this.numCommentUpvotes = numCommentUpvotes;
     }
 
     public long getNumCommentDownvotes() {

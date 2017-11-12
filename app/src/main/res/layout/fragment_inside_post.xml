@@ -33,7 +33,7 @@
                     android:layout_width="346dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="SORT" />
+                    android:text="COMMENTS SORT" />
             </LinearLayout>
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/comment_recyclerview"

@@ -34,15 +34,9 @@ public class FirebaseUtils {
                 .getReference(Constant.POST_KEY);
     }
 
-    public static DatabaseReference getPostLikedRef(){
+    public static DatabaseReference getPostUpvotedRef(){
         return FirebaseDatabase.getInstance()
-                .getReference(Constant.POST_LIKED_KEY);
-    }
-
-    public static DatabaseReference getPostLikedRef(String postId){
-        return getPostLikedRef().child(getCurrentUser().getEmail()
-                .replace(".",","))
-                .child(postId);
+                .getReference(Constant.POST_UPVOTED_KEY);
     }
 
     public static DatabaseReference getPostDownvotedRef() {
@@ -50,27 +44,41 @@ public class FirebaseUtils {
                 .getReference(Constant.POST_DOWNVOTED_KEY);
     }
 
-    public static DatabaseReference getPostDownvotedRef(String postId) {
-        return getPostDownvotedRef().child(getCurrentUser().getEmail()
-                .replace(".",","))
-                .child(postId);
-    }
-
-    public static DatabaseReference getCommentLikedRef(){
+    public static DatabaseReference getCommentUpvotedRef(){
         return FirebaseDatabase.getInstance()
-                .getReference(Constant.COMMENT_LIKED_KEY);
-    }
-
-    public static DatabaseReference getCommentLikedRef(String postId, String commentId){
-        return getCommentLikedRef().child(getCurrentUser().getEmail()
-                .replace(".",","))
-                .child(postId).child(commentId);
+                .getReference(Constant.COMMENT_UPVOTED_KEY);
     }
 
     public static DatabaseReference getCommentDownvotedRef() {
         return FirebaseDatabase.getInstance()
                 .getReference(Constant.COMMENT_DOWNVOTED_KEY);
     }
+
+    public static DatabaseReference getPostUpvotedRef(String postId){
+        return FirebaseDatabase.getInstance()
+                .getReference(Constant.POST_UPVOTED_KEY)
+                .child(getCurrentUser().getEmail()
+                .replace(".",","))
+                .child(postId);
+    }
+
+    public static DatabaseReference getPostDownvotedRef(String postId) {
+        return FirebaseDatabase.getInstance()
+                .getReference(Constant.POST_DOWNVOTED_KEY)
+                .child(getCurrentUser().getEmail()
+                .replace(".",","))
+                .child(postId);
+    }
+
+
+
+    public static DatabaseReference getCommentUpvotedRef(String postId, String commentId){
+        return getCommentUpvotedRef().child(getCurrentUser().getEmail()
+                .replace(".",","))
+                .child(postId).child(commentId);
+    }
+
+
 
     public static DatabaseReference getCommentDownvotedRef(String postId, String commentId) {
         return getCommentDownvotedRef().child(getCurrentUser().getEmail()

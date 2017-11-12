@@ -40,7 +40,7 @@ public class MainActivity extends BaseActivity
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("Discussion Groups");
+        setTitle("Joined Groups");
         addFragment(R.id.container,
                 new GroupListFragment(),
                 GroupListFragment.FRAGMENT_TAG);

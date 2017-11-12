@@ -10,4 +10,21 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    //next button
+    <string name = "btn_next_text">NEXT</string>
+
+    //setup your profile
+    <string name = "setup_your_profile_title">Set Up Your Profile</string>
+    <string name = "prompt_profile_fullname">What is your full name?</string>
+    <string name = "enter_profile_fullname">Full Name</string>
+    <string name = "prompt_profile_gender">What is your gender?</string>
+    <string name = "enter_gender_male">Male</string>
+    <string name = "enter_gender_female">Female</string>
+    <string name = "prompt_bday">What is your date of birth?</string>
+    <string name = "enter_bday">ENTER YOUR BIRTHDAY</string>
+    <string name = "prompt_uni">Which university or college are you currently studying in?</string>
+    <string name = "prompt_academic_school">Which academic school are you in?</string>
+    <string name = "prompt_course">Which course are you currently studying?</string>
+
 </resources>

@@ -135,7 +135,7 @@ public class HomeFragment extends Fragment {
 
 
     private void onLikeClick(final String postId) {
-        FirebaseUtils.getPostLikedRef(postId)
+        FirebaseUtils.getPostUpvotedRef(postId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -154,7 +154,7 @@ public class HomeFragment extends Fragment {
 
                                         @Override
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                                            FirebaseUtils.getPostLikedRef(postId)
+                                            FirebaseUtils.getPostUpvotedRef(postId)
                                                     .setValue(null);
                                         }
                                     });
@@ -172,7 +172,7 @@ public class HomeFragment extends Fragment {
 
                                         @Override
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                                            FirebaseUtils.getPostLikedRef(postId)
+                                            FirebaseUtils.getPostUpvotedRef(postId)
                                                     .setValue(true);
                                         }
                                     });

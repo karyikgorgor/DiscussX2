@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fyp.discussx.R;
@@ -14,6 +15,7 @@ import com.fyp.discussx.utils.FirebaseUtils;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -26,13 +28,27 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
 
     private static final int RC_SIGN_IN = 9001;
     private static final String TAG = "RegisterActivity";
-
+    private SignInButton signInButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        findViewById(R.id.button_sign_in).setOnClickListener(this);
+        signInButton = findViewById(R.id.button_sign_in);
+        signInButton.setOnClickListener(this);
+        setGooglePlusButtonText(signInButton,"Sign in with Google");
+    }
+
+    protected void setGooglePlusButtonText(SignInButton signInButton, String buttonText) {
+        for (int i = 0; i < signInButton.getChildCount(); i++) {
+            View v = signInButton.getChildAt(i);
+
+            if (v instanceof TextView) {
+                TextView tv = (TextView) v;
+                tv.setText(buttonText);
+                return;
+            }
+        }
     }
 
     @Override
