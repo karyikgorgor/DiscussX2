@@ -7,111 +7,120 @@
     android:fillViewport="true"
 
     tools:context="com.fyp.discussx.ui.activities.profile_setting.InitialProfileSetup1">
+
     <include
         android:id="@+id/include3"
         layout="@layout/app_bar_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/prompt_profile_fullname"
+        android:id="@+id/prompt_bday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/prompt_profile_fullname"
+        android:layout_marginTop="132dp"
+        android:text="@string/prompt_bday"
         android:textColor="@color/sunway_blue"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/include3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.249" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/enter_profile_fullname"
-        android:layout_width="270dp"
-        android:layout_height="39dp"
-        android:layout_below="@+id/prompt_profile_fullname"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="@string/enter_profile_fullname"
-        android:textColor="@color/sunway_blue"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.36" />
 
     <TextView
         android:id="@+id/prompt_profile_gender"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/enter_profile_fullname"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="56dp"
         android:text="@string/prompt_profile_gender"
         android:textColor="@color/sunway_blue"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/include3"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/enter_bday" />
 
-    <TextView
-        android:id="@+id/enter_gender_male"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/prompt_profile_gender"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_toLeftOf="@+id/prompt_profile_fullname"
-        android:layout_toStartOf="@+id/prompt_profile_fullname"
-        android:text="@string/enter_gender_male"
-        android:textColor="@color/sunway_blue"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.307"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.619" />
 
-    <TextView
-        android:id="@+id/enter_gender_female"
-        android:layout_width="wrap_content"
+    <RadioGroup
+        android:id="@+id/radios"
+        android:layout_width="243dp"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/enter_gender_male"
-        android:layout_alignStart="@+id/enter_gender_male"
-        android:layout_below="@+id/enter_gender_male"
         android:layout_marginEnd="8dp"
+        android:layout_marginLeft="16dp"
         android:layout_marginStart="8dp"
-        android:text="@string/enter_gender_female"
-        android:textColor="@color/sunway_blue"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="32dp"
+        android:inputType="text"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.326"
+        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.719" />
+        app:layout_constraintTop_toBottomOf="@+id/prompt_profile_gender">
+
+        <RadioButton
+            android:id="@+id/enter_male"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableEnd="@android:drawable/btn_radio"
+            android:drawablePadding="30dp"
+            android:drawableRight="@android:drawable/btn_radio"
+            android:gravity="center_vertical"
+            android:text="@string/enter_gender_male"
+            android:textColor="@color/sunway_blue"
+            android:textSize="18sp" />
+
+        <RadioButton
+            android:id="@+id/enter_female"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableEnd="@android:drawable/btn_radio"
+            android:drawableRight="@android:drawable/btn_radio"
+            android:gravity="center_vertical"
+            android:text="@string/enter_gender_female"
+            android:textColor="@color/sunway_blue"
+            android:textSize="18sp" />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btn_next"
+        android:layout_width="235dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="48dp"
+        android:background="@drawable/button_shape"
+        android:text="@string/btn_next_text"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/include3"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/enter_bday"
+        android:layout_width="235dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/button_bordered"
+        android:text="@string/enter_bday"
+        android:textColor="@color/sunway_blue"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/prompt_bday" />
+
 
 </android.support.constraint.ConstraintLayout>

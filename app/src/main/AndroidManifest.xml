@@ -17,6 +17,7 @@
         <activity
             android:name=".ui.activities.profile_setting.InitialProfileSetup1"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,7 +31,9 @@
         <activity android:name=".ui.activities.JoinGroupActivity" />
         <activity android:name=".ui.activities.InsideGroup" />
         <activity android:name=".ui.activities.CreatePostActivity" />
-        <activity android:name=".ui.activities.MainActivity"></activity>
+        <activity android:name=".ui.activities.MainActivity" />
+        <activity android:name=".ui.activities.profile_setting.InitialProfileSetup2" />
+        <activity android:name=".ui.activities.profile_setting.InitialProfileSetup3"></activity>
     </application>
 
 </manifest>

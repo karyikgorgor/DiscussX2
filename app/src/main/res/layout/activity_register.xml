@@ -4,7 +4,6 @@
     android:id="@+id/activity_register"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sunway_blue"
     tools:context="com.fyp.discussx.ui.activities.RegisterActivity">
 
     <com.google.android.gms.common.SignInButton
