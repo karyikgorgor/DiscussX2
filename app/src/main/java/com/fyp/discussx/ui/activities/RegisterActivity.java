@@ -10,7 +10,9 @@ import android.widget.Toast;
 
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.User;
+import com.fyp.discussx.ui.activities.profile_setting.InitialProfileSetup1;
 import com.fyp.discussx.utils.BaseActivity;
+import com.fyp.discussx.utils.Constant;
 import com.fyp.discussx.utils.FirebaseUtils;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -21,8 +23,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 public class RegisterActivity extends BaseActivity implements View.OnClickListener {
 
@@ -77,15 +81,12 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                     firebaseAuthWithGoogle(account);
 
                 } else {
-                    Toast.makeText(RegisterActivity.this, "Not working1~" , Toast.LENGTH_SHORT).show();
                     dismissProgressDialog();
                 }
             } else {
-                Toast.makeText(RegisterActivity.this, "Not working2~", Toast.LENGTH_SHORT).show();
                 dismissProgressDialog();
             }
         } else {
-            Toast.makeText(RegisterActivity.this, "Not working3~ " + resultCode + " " + Activity.RESULT_OK, Toast.LENGTH_SHORT).show();
             dismissProgressDialog();
         }
     }
@@ -106,16 +107,37 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                             user.setEmail(account.getEmail());
                             user.setUser(account.getDisplayName());
                             user.setUid(mAuth.getCurrentUser().getUid());
+                            user.setDob("null");
+                            user.setGender("null");
 
                             FirebaseUtils.getUserRef(account.getEmail().replace(".", ","))
                                     .setValue(user, new DatabaseReference.CompletionListener() {
                                         @Override
                                         public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                                             mFirebaseUser = mAuth.getCurrentUser();
-                                            finish();
-                                            Intent intent = new Intent (RegisterActivity.this, MainActivity.class);
-                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                            startActivity(intent);
+
+                                            FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",","))
+                                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                            if (!dataSnapshot.hasChild(Constant.ACADEMIC_PROFILE)) {
+                                                                Intent intent = new Intent (RegisterActivity.this, InitialProfileSetup1.class);
+                                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                                startActivity(intent);
+                                                                finish();
+                                                            } else {
+                                                                Intent intent2 = new Intent (RegisterActivity.this, MainActivity.class);
+                                                                intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                                startActivity(intent2);
+                                                                finish();
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                        }
+                                                    });
                                         }
                                     });
                         } else {

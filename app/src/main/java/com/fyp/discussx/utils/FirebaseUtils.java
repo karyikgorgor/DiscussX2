@@ -15,9 +15,6 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
-/**
- * Created by brad on 2017/02/05.
- */
 
 public class FirebaseUtils {
     //I'm creating this class for similar reasons as the Constants class, and to make my code a bit
@@ -28,6 +25,12 @@ public class FirebaseUtils {
                 .getReference(Constant.USERS_KEY)
                 .child(email);
     }
+
+    public static DatabaseReference getUserAcademicProfile () {
+        return getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",",")).child(Constant.ACADEMIC_PROFILE);
+    }
+
+
 
     public static DatabaseReference getPostRef(){
         return FirebaseDatabase.getInstance()
@@ -198,6 +201,22 @@ public class FirebaseUtils {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
                 mutableData.child(id).setValue(name);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
+            }
+        });
+    }
+
+    public static void addGenderAndDob (final String gender, final String dob) {
+        getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",",")).runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                mutableData.child(Constant.GENDER).setValue(gender);
+                mutableData.child(Constant.DOB).setValue(dob);
                 return Transaction.success(mutableData);
             }
 

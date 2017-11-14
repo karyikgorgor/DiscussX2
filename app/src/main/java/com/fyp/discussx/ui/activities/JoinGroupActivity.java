@@ -4,9 +4,13 @@ package com.fyp.discussx.ui.activities;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -44,6 +48,16 @@ public class JoinGroupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_group);
+
+        setTitle("Join A Discussion Group");
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
 
         groupListView = findViewById(R.id.all_group_list_view);
 
@@ -142,6 +156,10 @@ public class JoinGroupActivity extends AppCompatActivity {
                                                     public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                                                         FirebaseUtils.addRecord(Constant.GROUP_JOINED_KEY, groupId, groupName);
                                                         progressDialog.dismiss();
+
+                                                        Intent intent = new Intent (JoinGroupActivity.this, MainActivity.class);
+                                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                        startActivity(intent);
                                                         finish();
                                                     }
                                                 });
@@ -156,6 +174,22 @@ public class JoinGroupActivity extends AppCompatActivity {
         });
         AlertDialog alert = confirmJoinGroup.create();
         alert.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_initial_profile_setup, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            this.finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
 

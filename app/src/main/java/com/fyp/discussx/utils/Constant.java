@@ -33,8 +33,13 @@ public class Constant {
 
     public static final String USER_RECORD = "user_record";
 
-
     public static final String USERS_KEY = "users";
+
+    public static final String GENDER = "gender";
+    public static final String DOB = "dob";
+
+    public static final String ACADEMIC_PROFILE = "academic_profile";
+
     public static final String COMMENT_TIME_CREATED = "timeCreated";
 
 

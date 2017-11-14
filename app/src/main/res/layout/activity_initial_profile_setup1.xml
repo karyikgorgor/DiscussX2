@@ -37,19 +37,32 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/enter_bday"
+        android:layout_width="235dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/button_bordered"
+        android:text="@string/enter_bday"
+        android:textColor="@color/sunway_blue"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/prompt_bday" />
 
     <TextView
         android:id="@+id/prompt_profile_gender"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="56dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="104dp"
+        android:layout_marginTop="8dp"
         android:text="@string/prompt_profile_gender"
         android:textColor="@color/sunway_blue"
         android:textSize="18sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/radios"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/enter_bday" />
 
 
@@ -57,17 +70,11 @@
         android:id="@+id/radios"
         android:layout_width="243dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
-        android:inputType="text"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.504"
+        android:layout_marginBottom="44dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_next"
+        app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/prompt_profile_gender">
+        app:layout_constraintRight_toRightOf="parent">
 
         <RadioButton
             android:id="@+id/enter_male"
@@ -108,19 +115,6 @@
         app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
-
-    <Button
-        android:id="@+id/enter_bday"
-        android:layout_width="235dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:background="@drawable/button_bordered"
-        android:text="@string/enter_bday"
-        android:textColor="@color/sunway_blue"
-        app:layout_constraintHorizontal_bias="0.503"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/prompt_bday" />
 
 
 </android.support.constraint.ConstraintLayout>

@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -44,6 +45,8 @@ public class GroupListFragment extends Fragment {
             BuildConfig.APPLICATION_ID + ".GROUP_LIST_FRAGMENT_TAG";
     private View mRootView;
     private ListView groupListView;
+    private ImageView logo;
+    private TextView caption;
     private CustomAdapter customAdapter;
 
     private List <String> groupNameArray = new ArrayList<>();
@@ -63,15 +66,31 @@ public class GroupListFragment extends Fragment {
 
     private void init () {
         groupListView = mRootView.findViewById(R.id.group_list_view);
+        logo = mRootView.findViewById(R.id.logo_in_join_group);
+        caption = mRootView.findViewById(R.id.ask_join_group);
+
 
         FirebaseUtils.getGroupJoinedFromUserRecordRef().orderByValue().addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
                 String groupName = dataSnapshot.getValue(String.class);
                 String groupId = dataSnapshot.getKey();
 
                 groupNameArray.add(groupName);
                 groupIdArray.add(groupId);
+
+                if (groupIdArray.size() == 0) {
+                    groupListView.setVisibility(View.GONE);
+                    logo.setVisibility(View.VISIBLE);
+                    caption.setVisibility(View.VISIBLE);
+
+                } else if (groupIdArray.size() > 0){
+                    groupListView.setVisibility(View.VISIBLE);
+                    logo.setVisibility(View.GONE);
+                    caption.setVisibility(View.GONE);
+                }
+
 
                 customAdapter = new CustomAdapter(getActivity(), groupNameArray, groupIdArray);
 

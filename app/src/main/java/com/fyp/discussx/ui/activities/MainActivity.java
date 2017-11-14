@@ -20,7 +20,9 @@ import com.bumptech.glide.Glide;
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.User;
 import com.fyp.discussx.ui.activities.fragments.GroupListFragment;
+import com.fyp.discussx.ui.activities.profile_setting.InitialProfileSetup1;
 import com.fyp.discussx.utils.BaseActivity;
+import com.fyp.discussx.utils.Constant;
 import com.fyp.discussx.utils.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -32,14 +34,15 @@ public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private ValueEventListener mUserValueEventListener;
     private ImageView mDisplayImageView;
     private TextView mNameTextView;
     private TextView mEmailTextView;
-    private ValueEventListener mUserValueEventListener;
     private DatabaseReference mUserRef;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setTitle("Joined Groups");
         addFragment(R.id.container,
                 new GroupListFragment(),
@@ -79,10 +82,29 @@ public class MainActivity extends BaseActivity
     }
 
     private void init() {
-
         if (mFirebaseUser != null) {
             mUserRef = FirebaseUtils.getUserRef(mFirebaseUser.getEmail().replace(".", ","));
+
+            FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",","))
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (!dataSnapshot.hasChild(Constant.ACADEMIC_PROFILE)) {
+                                Intent intent = new Intent (MainActivity.this, InitialProfileSetup1.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
         }
+
+
+
     }
 
     private void initNavHeader(View view) {

@@ -1,6 +1,7 @@
 package com.fyp.discussx.ui.activities.profile_setting;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -14,11 +15,17 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.fyp.discussx.R;
+import com.fyp.discussx.ui.activities.RegisterActivity;
+import com.fyp.discussx.utils.BaseActivity;
+import com.fyp.discussx.utils.FirebaseUtils;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class InitialProfileSetup2 extends AppCompatActivity {
+public class InitialProfileSetup2 extends BaseActivity {
 
     private Button btnNext;
     private Spinner campusSpinner;
@@ -26,6 +33,9 @@ public class InitialProfileSetup2 extends AppCompatActivity {
     private Spinner spinnerAcademicSchool;
     private final List<String> uniAcademicSchoolList = new ArrayList<String>();
     private final List<String> collegeAcademicSchoolList = new ArrayList<String>();
+    private DatabaseReference mUserRef;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private ValueEventListener mUserValueEventListener;
     
     private String academicSchoolChoice;
     
@@ -37,6 +47,9 @@ public class InitialProfileSetup2 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_profile_setup2);
+
+       // init();
+
         setTitle("Set Up Your Profile");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -61,6 +74,21 @@ public class InitialProfileSetup2 extends AppCompatActivity {
         });
 
     }
+    private void init() {
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() == null) {
+                    startActivity(new Intent(InitialProfileSetup2.this, RegisterActivity.class));
+                }
+            }
+        };
+
+        if (mFirebaseUser != null) {
+            mUserRef = FirebaseUtils.getUserRef(mFirebaseUser.getEmail().replace(".", ","));
+        }
+    }
+
 
     private void selectCampus () {
         campusList.add("Sunway College");
@@ -92,7 +120,6 @@ public class InitialProfileSetup2 extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 campusChoice = campusList.get(i);
-                
                 switch(i) {
                     case 0: 
                         spinnerAcademicSchool.setAdapter(collegeAdapter);
@@ -116,33 +143,7 @@ public class InitialProfileSetup2 extends AppCompatActivity {
         spinnerAcademicSchool.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                switch (i) {
-                    case 0:
-                        academicSchoolChoice = uniAcademicSchoolList.get(0);
-                        break;
-                    case 1:
-                        academicSchoolChoice = uniAcademicSchoolList.get(1);
-                        break;
-                    case 2:
-                        academicSchoolChoice = uniAcademicSchoolList.get(2);
-                        break;
-                    case 3:
-                        academicSchoolChoice = uniAcademicSchoolList.get(3);
-                        break;
-                    case 4:
-                        academicSchoolChoice = uniAcademicSchoolList.get(4);
-                        break;
-                    case 5:
-                        academicSchoolChoice = uniAcademicSchoolList.get(5);
-                        break;
-                    case 6:
-                        academicSchoolChoice = uniAcademicSchoolList.get(6);
-                        break;
-                    case 7:
-                        academicSchoolChoice = uniAcademicSchoolList.get(7);
-                        break;
-
-                }
+                    academicSchoolChoice = uniAcademicSchoolList.get(i);
             }
 
             @Override
@@ -157,24 +158,7 @@ public class InitialProfileSetup2 extends AppCompatActivity {
         spinnerAcademicSchool.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case 0:
-                        academicSchoolChoice = collegeAcademicSchoolList.get(0);
-                        break;
-                    case 1:
-                        academicSchoolChoice = collegeAcademicSchoolList.get(1);
-                        break;
-                    case 2:
-                        academicSchoolChoice = collegeAcademicSchoolList.get(2);
-                        break;
-                    case 3:
-                        academicSchoolChoice = collegeAcademicSchoolList.get(3);
-                        break;
-                    case 4:
-                        academicSchoolChoice = collegeAcademicSchoolList.get(4);
-                        break;
-
-                }
+                academicSchoolChoice = collegeAcademicSchoolList.get(position);
             }
 
             @Override
@@ -186,9 +170,15 @@ public class InitialProfileSetup2 extends AppCompatActivity {
     }
 
     private void passData () {
+        String dob = getIntent().getExtras().getString("dob");
+        String gender = getIntent().getExtras().getString("gender");
+
         Intent intent = new Intent (InitialProfileSetup2.this, InitialProfileSetup3.class);
+        intent.putExtra("dob", dob);
+        intent.putExtra("gender", gender);
         intent.putExtra("campus", campusChoice);
         intent.putExtra("academicSchool", academicSchoolChoice);
+
         startActivity(intent);
     }
 
@@ -207,5 +197,23 @@ public class InitialProfileSetup2 extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+ /*  @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthStateListener);
+        if (mUserRef != null) {
+            mUserRef.addValueEventListener(mUserValueEventListener);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAuthStateListener != null)
+            mAuth.removeAuthStateListener(mAuthStateListener);
+        if (mUserRef != null)
+            mUserRef.removeEventListener(mUserValueEventListener);
+    }*/
 
 }

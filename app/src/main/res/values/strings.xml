@@ -27,5 +27,8 @@
     <string name="enter_uni">Select your university</string>
     <string name="prompt_academic_school">Which academic school are you in?</string>
     <string name="prompt_course">Which course are you currently studying?</string>
-
+    <string name="profile_success_setup">Your profile is successfully set up!</string>
+    <string name="create_group">Create Discussion Group</string>
+    <string name="join_group">Join Discussion Group</string>
+    <string name="ask_join_group">Looks like you haven\'t joined any groups. You may create one or join one by clicking the option button at the top right corner.</string>
 </resources>

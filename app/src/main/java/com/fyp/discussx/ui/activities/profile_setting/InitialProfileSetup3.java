@@ -1,21 +1,41 @@
 package com.fyp.discussx.ui.activities.profile_setting;
 
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.fyp.discussx.R;
+import com.fyp.discussx.model.Course;
+import com.fyp.discussx.model.User;
+import com.fyp.discussx.ui.activities.RegisterActivity;
+import com.fyp.discussx.utils.BaseActivity;
+import com.fyp.discussx.utils.Constant;
+import com.fyp.discussx.utils.FirebaseUtils;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class InitialProfileSetup3 extends AppCompatActivity {
+public class InitialProfileSetup3 extends BaseActivity {
 
     private Spinner spinnerCourse;
+    private Button btnNext;
+
+    private Course course;
+    private User user;
 
     //college courses
     private final List<String> preuList = new ArrayList<String>();
@@ -23,10 +43,6 @@ public class InitialProfileSetup3 extends AppCompatActivity {
     private final List<String> vumbaList = new ArrayList<String>();
     private final List<String> proAccList = new ArrayList<String>();
     private final List<String> sunwayDipList = new ArrayList<String>();
-
-
-
-
 
     //univeristy courses
     private final List<String> adtpList = new ArrayList<String>();
@@ -38,11 +54,16 @@ public class InitialProfileSetup3 extends AppCompatActivity {
     private final List<String> sihdList = new ArrayList<String>();
     private final List<String> subsList = new ArrayList<String>();
 
+    private DatabaseReference mUserRef;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private ValueEventListener mUserValueEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_profile_setup3);
+
+       // init();
         setTitle("Set Up Your Profile");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -53,13 +74,29 @@ public class InitialProfileSetup3 extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         spinnerCourse = findViewById(R.id.spinner_course);
+        btnNext = findViewById(R.id.btn_next);
         setCourse();
 
     }
 
+    private void init() {
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() == null) {
+                    startActivity(new Intent(InitialProfileSetup3.this, RegisterActivity.class));
+                }
+            }
+        };
+
+        if (mFirebaseUser != null) {
+            mUserRef = FirebaseUtils.getUserRef(mFirebaseUser.getEmail().replace(".", ","));
+        }
+    }
+
     private void setCourse () {
-        String campus = getIntent().getExtras().getString("campus");
-        String academicSchool = getIntent().getExtras().getString("academicSchool");
+
+        final String academicSchool = getIntent().getExtras().getString("academicSchool");
 
         //college adapters
         ArrayAdapter <String> preuAdapter = new ArrayAdapter<String>(InitialProfileSetup3.this, R.layout.support_simple_spinner_dropdown_item, preuList);
@@ -227,9 +264,33 @@ public class InitialProfileSetup3 extends AppCompatActivity {
             case "Sunway Diploma Studies":
                 spinnerCourse.setAdapter(sunwayDipAdapter);
                 break;
-
         }
 
+        //add into firebase database
+        btnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String gender = getIntent().getExtras().getString("gender");
+                String dob = getIntent().getExtras().getString("dob");
+                String campus = getIntent().getExtras().getString("campus");
+
+                course = new Course();
+                course.setCourseName(spinnerCourse.getSelectedItem().toString());
+                course.setTimeAdded(System.currentTimeMillis());
+
+                FirebaseUtils.getUserAcademicProfile()
+                        .child(campus)
+                        .child(academicSchool)
+                        .setValue(course);
+
+                FirebaseUtils.addGenderAndDob(gender, dob);
+
+                Intent intent = new Intent (InitialProfileSetup3.this, ProfileSetupComplete.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
 
@@ -248,4 +309,22 @@ public class InitialProfileSetup3 extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+   /*@Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthStateListener);
+        if (mUserRef != null) {
+            mUserRef.addValueEventListener(mUserValueEventListener);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAuthStateListener != null)
+            mAuth.removeAuthStateListener(mAuthStateListener);
+        if (mUserRef != null)
+            mUserRef.removeEventListener(mUserValueEventListener);
+    }*/
 }

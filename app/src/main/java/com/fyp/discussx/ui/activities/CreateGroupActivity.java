@@ -43,9 +43,7 @@ public class CreateGroupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 createGroup();
-                Intent intent = new Intent (CreateGroupActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+
             }
         });
 
@@ -81,6 +79,11 @@ public class CreateGroupActivity extends AppCompatActivity {
 
             FirebaseUtils.addRecord(Constant.GROUP_CREATED_KEY, uid, groupNameString);
             FirebaseUtils.addRecord(Constant.GROUP_JOINED_KEY, uid, groupNameString);
+
+            Intent intent = new Intent (CreateGroupActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
             
             /*FirebaseUtils.getGroupCreatedRef().child(uid)
                     .child(Constant.NUM_MEMBERS_KEY)
