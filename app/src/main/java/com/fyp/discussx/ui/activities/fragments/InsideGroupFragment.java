@@ -27,6 +27,7 @@ import com.fyp.discussx.utils.Constant;
 import com.fyp.discussx.utils.FirebaseUtils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.fyp.discussx.utils.OnSingleClickListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.MutableData;
@@ -83,6 +84,7 @@ public class InsideGroupFragment extends Fragment {
     private void setupAdapter(String groupIdX) {
         Query query = FirebaseUtils.getPostFromGroupRef(groupIdX);
 
+
         mPostAdapter = new FirebaseRecyclerAdapter<Post, PostHolder>(
                 Post.class,
                 R.layout.row_post,
@@ -117,29 +119,61 @@ public class InsideGroupFragment extends Fragment {
                     viewHolder.postDisplayImageVIew.setImageBitmap(null);
                     viewHolder.postDisplayImageVIew.setVisibility(View.GONE);
                 }
-                viewHolder.postUpvoteLayout.setOnClickListener(new View.OnClickListener() {
+                viewHolder.postUpvoteLayout.setOnClickListener(new OnSingleClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        onPostUpvoteClick(getActivity().getIntent().getExtras().getString("groupId"),model.getPostId(), model.getNumUpvotes());
+                    public void onOneClick(View v) {
+                        FirebaseUtils.getPostDownvotedFromUserRef(model.getPostId())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            Toast.makeText(getActivity(), "You can only either up-vote or down-vote.", Toast.LENGTH_SHORT).show();
+                                        }else {
+                                            onPostUpvoteClick(getActivity().getIntent().getExtras().getString("groupId"),model.getPostId(), model.getNumUpvotes());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
                     }
                 });
 
-                viewHolder.postDownvotesLayout.setOnClickListener(new View.OnClickListener() {
+                viewHolder.postDownvotesLayout.setOnClickListener(new OnSingleClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        onPostDownvoteClick(getActivity().getIntent().getExtras().getString("groupId"),model.getPostId(), model.getNumDownvotes());
+                    public void onOneClick(View v) {
+
+                        FirebaseUtils.getPostUpvotedFromUserRef(model.getPostId())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            Toast.makeText(getActivity(), "You can only either up-vote or down-vote.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onPostDownvoteClick(getActivity().getIntent().getExtras().getString("groupId"),model.getPostId(), model.getNumDownvotes());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
                     }
                 });
 
-                viewHolder.postCommentLayout.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(getContext(), PostActivity.class);
-                        intent.putExtra(Constant.EXTRA_POST, model);
-                        intent.putExtra("groupId", getActivity().getIntent().getExtras().getString("groupId"));
-                        startActivity(intent);
-                    }
-                });
+                        viewHolder.postCommentLayout.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(getContext(), PostActivity.class);
+                                intent.putExtra(Constant.EXTRA_POST, model);
+                                intent.putExtra("groupId", getActivity().getIntent().getExtras().getString("groupId"));
+                                intent.putExtra("groupName", getActivity().getIntent().getExtras().getString("groupName"));
+                                startActivity(intent);
+                            }
+                        });
             }
         };
     }
@@ -172,6 +206,7 @@ public class InsideGroupFragment extends Fragment {
                                                                DataSnapshot dataSnapshot) {
                                             FirebaseUtils.getPostUpvotedRef(postId)
                                                     .setValue(null);
+                                            FirebaseUtils.getPostUpvotedFromUserRef(postId).setValue(null);
                                         }
                                     });
                         } else  {
@@ -189,6 +224,7 @@ public class InsideGroupFragment extends Fragment {
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                                             FirebaseUtils.getPostUpvotedRef(postId)
                                                     .setValue(true);
+                                            FirebaseUtils.getPostUpvotedFromUserRef(postId).setValue(true);
                                         }
                                     });
                         }
@@ -225,6 +261,8 @@ public class InsideGroupFragment extends Fragment {
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                                             FirebaseUtils.getPostDownvotedRef(postId)
                                                     .setValue(null);
+                                            FirebaseUtils.getPostDownvotedFromUserRef(postId)
+                                                    .setValue(null);
                                         }
                                     });
                         } else {
@@ -241,6 +279,8 @@ public class InsideGroupFragment extends Fragment {
                                         @Override
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                                             FirebaseUtils.getPostDownvotedRef(postId)
+                                                    .setValue(true);
+                                            FirebaseUtils.getPostDownvotedFromUserRef(postId)
                                                     .setValue(true);
                                         }
                                     });

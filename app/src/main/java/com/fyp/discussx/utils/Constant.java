@@ -18,18 +18,25 @@ public class Constant {
     public static final String POST_UPVOTED_KEY = "post_upvoted";
     public static final String POST_DOWNVOTED_KEY = "post_downvoted";
 
+    public static final String USER_UPVOTED_POST = "user_upvoted_post";
+    public static final String USER_DOWNVOTED_POST = "user_downvoted_post";
 
     public static final String COMMENT_UPVOTED_KEY = "comment_upvoted";
     public static final String COMMENT_DOWNVOTED_KEY = "comment_downvoted";
 
+    public static final String USER_UPVOTED_COMMENT = "user_upvoted_comment";
+    public static final String USER_DOWNVOTED_COMMENT = "user_downvoted_comment";
+
     public static final String NUM_COMMENT_DOWNVOTES_KEY = "numCommentDownvotes";
+
+    public static final String REPORTED_COMMENT = "reported_comments";
+
     public static final String POST_IMAGES = "post_images";
     public static final String MY_POSTS = "my_posts";
     public static final String EXTRA_POST = "post";
 
     public static final String NUM_COMMENTS_KEY = "numComments";
-    public static final String REPLY_TO_COMMENT_KEY = "reply_to_comment";
-    public static final String NUM_REPLY_TO_COMMENT_KEY = "numReplyToComment";
+
 
     public static final String USER_RECORD = "user_record";
 

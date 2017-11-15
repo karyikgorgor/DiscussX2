@@ -73,6 +73,43 @@ public class FirebaseUtils {
                 .child(postId);
     }
 
+    public static DatabaseReference getPostUpvotedFromUserRef (String postId) {
+        DatabaseReference x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD);
+        if (FirebaseUtils.getCurrentUser() != null) {
+            x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD)
+                    .child(getCurrentUser().getEmail().replace(".",",")).child(Constant.USER_UPVOTED_POST)
+            .child(postId);
+        }
+        return x;
+    }
+
+    public static DatabaseReference getPostDownvotedFromUserRef (String postId) {
+        DatabaseReference x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD);
+        if (FirebaseUtils.getCurrentUser() != null) {
+            x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD)
+                    .child(getCurrentUser().getEmail().replace(".",",")).child(Constant.USER_DOWNVOTED_POST)
+                    .child(postId);
+        }
+        return x;
+    }
+   public static DatabaseReference getCommentUpvotedFromUserRef (String commentId) {
+       DatabaseReference x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD);
+       if (FirebaseUtils.getCurrentUser() != null) {
+           x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD)
+                   .child(getCurrentUser().getEmail().replace(".",",")).child(Constant.USER_UPVOTED_COMMENT)
+                   .child(commentId);
+       }
+       return x;
+    }
+    public static DatabaseReference getCommentDownvotedFromUserRef (String commentId) {
+        DatabaseReference x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD);
+        if (FirebaseUtils.getCurrentUser() != null) {
+            x = FirebaseDatabase.getInstance().getReference(Constant.USER_RECORD)
+                    .child(getCurrentUser().getEmail().replace(".",",")).child(Constant.USER_DOWNVOTED_COMMENT)
+                    .child(commentId);
+        }
+        return x;
+    }
 
 
     public static DatabaseReference getCommentUpvotedRef(String postId, String commentId){
@@ -231,9 +268,9 @@ public class FirebaseUtils {
         return FirebaseDatabase.getInstance().getReference(Constant.GROUP_ID_AND_NAME);
     }
 
-    public static DatabaseReference getExample () {
-        return FirebaseDatabase.getInstance()
-                .getReference(Constant.EXAMPLE);
+    public static DatabaseReference getCommentReportRef (String reportId) {
+        return FirebaseDatabase.getInstance().getReference(Constant.REPORTED_COMMENT)
+                .child(reportId);
     }
 
 }

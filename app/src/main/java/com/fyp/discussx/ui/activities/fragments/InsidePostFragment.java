@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -31,11 +32,13 @@ import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.fyp.discussx.BuildConfig;
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.Comment;
+import com.fyp.discussx.model.CommentReport;
 import com.fyp.discussx.model.Post;
 import com.fyp.discussx.model.User;
 import com.fyp.discussx.ui.activities.PostActivity;
 import com.fyp.discussx.utils.Constant;
 import com.fyp.discussx.utils.FirebaseUtils;
+import com.fyp.discussx.utils.OnSingleClickListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -67,6 +70,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
     private EditText mCommentEditTextView;
     private Comment mComment;
     private Button btnCommentSort;
+    private CommentReport commentReport = new CommentReport();
 
     private static final String TAG = "PostActivity";
     public InsidePostFragment() {
@@ -96,13 +100,105 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         initCommentSection();
 
         return mRootView;
+
     }
 
-    private void showPopup (View v) {
+    private void showPopup (View v, final String postId, final String commentId) {
         PopupMenu popupMenu = new PopupMenu(getActivity(), v);
         MenuInflater menuInflater = popupMenu.getMenuInflater();
         menuInflater.inflate(R.menu.comment_report, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.report_comment) {
+                    CharSequence [] options = {"It's rude and offensive", "It contains inappropriate content", "It's off-topic/not constructive"};
+
+                    AlertDialog.Builder commentReportDialog = new AlertDialog.Builder(getActivity());
+                    commentReportDialog.setTitle("What's wrong with this comment?");
+                    commentReportDialog.setSingleChoiceItems(options, -1, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            commentReport.setTimeReported(System.currentTimeMillis());
+                            commentReport.setGroupId(getActivity().getIntent().getExtras().getString("groupId"));
+                            commentReport.setReporter(FirebaseUtils.getCurrentUser().getDisplayName());
+
+
+                            switch (which) {
+                                case 0:
+                                    commentReport.setReason("It's rude and offensive");
+                                    break;
+                                case 1:
+                                    commentReport.setReason("It contains inappropriate content");
+                                    break;
+                                case 2:
+                                    commentReport.setReason("It's off-topic/not constructive");
+                                    break;
+                            }
+
+
+                            FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                                    .child(Constant.POST_KEY)
+                                    .child(postId)
+                                    .child(Constant.COMMENTS_KEY)
+                                    .child(commentId)
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            String userName = dataSnapshot.child("userName").getValue(String.class);
+                                            commentReport.setReportedUser(userName);
+
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+
+                            FirebaseUtils.getGroupCreatedRef(getActivity().getIntent().getExtras().getString("groupId"))
+                                    .child(Constant.POST_KEY)
+                                    .child(postId)
+                                    .child(Constant.COMMENTS_KEY)
+                                    .child(commentId)
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            String comment = dataSnapshot.child("comment").getValue(String.class);
+                                            commentReport.setReportedComment(comment);
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+                        }
+                    }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String reportId = FirebaseUtils.getUid();
+                            FirebaseUtils.getCommentReportRef(reportId).setValue(commentReport);
+                            dialog.dismiss();
+                            Toast.makeText(getActivity(), "Successfully reported", Toast.LENGTH_SHORT).show();
+                        }
+                    }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog alert = commentReportDialog.create();
+                    alert.show();
+                }
+                return true;
+            }
+        });
+
         popupMenu.show();
+
+
     }
 
     //display comments list
@@ -119,6 +215,8 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                         .child(mPost.getPostId())
                         .child(Constant.COMMENTS_KEY)
         ) {
+
+
             @Override
             protected void populateViewHolder(final CommentHolder viewHolder, final Comment model, int position) {
                 viewHolder.setUsername(model.getUserName());
@@ -127,28 +225,58 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 viewHolder.setCommentNumUpvotes(String.valueOf(model.getNumCommentUpvotes()));
                 viewHolder.setCommentNumDownvotes(String.valueOf(model.getNumCommentDownvotes()));
 
+
                 Glide.with(getActivity())
                         .load(mPost.getUser().getPhotoUrl())
                         .into(viewHolder.commentOwnerDisplay);
 
-                viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
+                viewHolder.commentUpvoteLayout.setOnClickListener(new OnSingleClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
+                    public void onOneClick(View v) {
+                        FirebaseUtils.getCommentDownvotedFromUserRef(model.getCommentId())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            Toast.makeText(getActivity(), "You can only either up-vote or down-vote.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                    }
+                });
+                viewHolder.commentDownvoteLayout.setOnClickListener(new OnSingleClickListener() {
+                    @Override
+                    public void onOneClick(View v) {
+                        FirebaseUtils.getCommentUpvotedFromUserRef(model.getCommentId())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            Toast.makeText(getActivity(), "You can only either up-vote or down-vote.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onCommentDownvoteClick(mPost.getPostId(), model.getCommentId());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
                     }
                 });
 
-                viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
+               viewHolder.reportCommentLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onCommentDownvotedClick(mPost.getPostId(), model.getCommentId());
-                    }
-                });
-
-                viewHolder.reportCommentLayout.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showPopup(v);
+                        showPopup(v, mPost.getPostId(), model.getCommentId());
                     }
                 });
 
@@ -160,13 +288,15 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 });
 
             }
+
         };
 
         commentRecyclerView.setAdapter(commentAdapter);
+        commentAdapter.notifyDataSetChanged();
     }
 
     private void commentSortDialog () {
-        CharSequence [] options = {"Most Upvoted", "Most Downvoted", "Most Argumentative","Oldest", "Newest"};
+        CharSequence [] options = {"Most Upvoted", "Most Downvoted", "Oldest", "Newest"};
 
         AlertDialog.Builder commentSort = new AlertDialog.Builder(getActivity());
         commentSort.setTitle("Comments Sort Options");
@@ -181,14 +311,12 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                         commentSortByMostDownvotes(mPost.getPostId());
                         break;
                     case 2:
-
-                        break;
-                    case 3:
                         commentSortByOldest(mPost.getPostId());
                         break;
-                    case 4:
+                    case 3:
                         commentSortByNewest(mPost.getPostId());
                         break;
+
                 }
 
             }
@@ -243,22 +371,59 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                         .load(mPost.getUser().getPhotoUrl())
                         .into(viewHolder.commentOwnerDisplay);
 
-                viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
+                viewHolder.commentUpvoteLayout.setOnClickListener(new OnSingleClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
+                    public void onOneClick(View v) {
+                        FirebaseUtils.getCommentDownvotedFromUserRef(model.getCommentId())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            Toast.makeText(getActivity(), "You can only either up-vote or down-vote.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
                     }
                 });
-                viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
+                viewHolder.commentDownvoteLayout.setOnClickListener(new OnSingleClickListener() {
+                    @Override
+                    public void onOneClick(View v) {
+                        FirebaseUtils.getCommentUpvotedFromUserRef(model.getCommentId())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            Toast.makeText(getActivity(), "You can only either up-vote or down-vote.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onCommentDownvoteClick(mPost.getPostId(), model.getCommentId());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                    }
+                });
+                viewHolder.reportCommentLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onCommentDownvotedClick(mPost.getPostId(), model.getCommentId());
+                        showPopup(v, mPost.getPostId(), model.getCommentId());
                     }
                 });
 
             }
         };
         commentRecyclerView.setAdapter(commentAdapter);
+        commentAdapter.notifyDataSetChanged();
     }
     private void commentSortByMostDownvotes (String postId) {
         RecyclerView commentRecyclerView = mRootView.findViewById(R.id.comment_recyclerview);
@@ -277,6 +442,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 query
         ) {
 
+
             @Override
             public Comment getItem(int position) {
                 return super.getItem(getItemCount() - 1 - position);
@@ -294,22 +460,59 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                         .load(mPost.getUser().getPhotoUrl())
                         .into(viewHolder.commentOwnerDisplay);
 
-                viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
+                viewHolder.commentUpvoteLayout.setOnClickListener(new OnSingleClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
+                    public void onOneClick(View v) {
+                        FirebaseUtils.getCommentDownvotedFromUserRef(model.getCommentId())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            Toast.makeText(getActivity(), "You can only either up-vote or down-vote.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
                     }
                 });
-                viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
+                viewHolder.commentDownvoteLayout.setOnClickListener(new OnSingleClickListener() {
+                    @Override
+                    public void onOneClick(View v) {
+                        FirebaseUtils.getCommentUpvotedFromUserRef(model.getCommentId())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            Toast.makeText(getActivity(), "You can only either up-vote or down-vote.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onCommentDownvoteClick(mPost.getPostId(), model.getCommentId());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                    }
+                });
+                viewHolder.reportCommentLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onCommentDownvotedClick(mPost.getPostId(), model.getCommentId());
+                        showPopup(v, mPost.getPostId(), model.getCommentId());
                     }
                 });
 
             }
         };
         commentRecyclerView.setAdapter(commentAdapter);
+        commentAdapter.notifyDataSetChanged();
     }
 
     private void commentSortByNewest (String postId) {
@@ -346,22 +549,59 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                         .load(mPost.getUser().getPhotoUrl())
                         .into(viewHolder.commentOwnerDisplay);
 
-                viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
+                viewHolder.commentUpvoteLayout.setOnClickListener(new OnSingleClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
+                    public void onOneClick(View v) {
+                        FirebaseUtils.getCommentDownvotedFromUserRef(model.getCommentId())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            Toast.makeText(getActivity(), "You can only either up-vote or down-vote.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
                     }
                 });
-                viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
+                viewHolder.commentDownvoteLayout.setOnClickListener(new OnSingleClickListener() {
+                    @Override
+                    public void onOneClick(View v) {
+                        FirebaseUtils.getCommentUpvotedFromUserRef(model.getCommentId())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            Toast.makeText(getActivity(), "You can only either up-vote or down-vote.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onCommentDownvoteClick(mPost.getPostId(), model.getCommentId());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                    }
+                });
+                viewHolder.reportCommentLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onCommentDownvotedClick(mPost.getPostId(), model.getCommentId());
+                        showPopup(v, mPost.getPostId(), model.getCommentId());
                     }
                 });
 
             }
         };
         commentRecyclerView.setAdapter(commentAdapter);
+        commentAdapter.notifyDataSetChanged();
     }
 
 
@@ -393,22 +633,59 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                         .load(mPost.getUser().getPhotoUrl())
                         .into(viewHolder.commentOwnerDisplay);
 
-                viewHolder.commentLikeLayout.setOnClickListener(new View.OnClickListener() {
+                viewHolder.commentUpvoteLayout.setOnClickListener(new OnSingleClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
+                    public void onOneClick(View v) {
+                        FirebaseUtils.getCommentDownvotedFromUserRef(model.getCommentId())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            Toast.makeText(getActivity(), "You can only either up-vote or down-vote.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onCommentUpvoteClick(mPost.getPostId(), model.getCommentId());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
                     }
                 });
-                viewHolder.commentDownvoteLayout.setOnClickListener(new View.OnClickListener() {
+                viewHolder.commentDownvoteLayout.setOnClickListener(new OnSingleClickListener() {
+                    @Override
+                    public void onOneClick(View v) {
+                        FirebaseUtils.getCommentUpvotedFromUserRef(model.getCommentId())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            Toast.makeText(getActivity(), "You can only either up-vote or down-vote.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onCommentDownvoteClick(mPost.getPostId(), model.getCommentId());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                    }
+                });
+                viewHolder.reportCommentLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onCommentDownvotedClick(mPost.getPostId(), model.getCommentId());
+                        showPopup(v, mPost.getPostId(), model.getCommentId());
                     }
                 });
 
             }
         };
         commentRecyclerView.setAdapter(commentAdapter);
+        commentAdapter.notifyDataSetChanged();
     }
     //display posts list
     private void initPost() {
@@ -417,7 +694,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         TextView postTimeCreatedTextView = mRootView.findViewById(R.id.tv_time);
         ImageView postDisplayImageView = mRootView.findViewById(R.id.iv_post_display);
 
-        TextView postNumLikesTextView = mRootView.findViewById(R.id.tv_upvotes);
+        TextView postnumUpvotesTextView = mRootView.findViewById(R.id.tv_upvotes);
         TextView postNumCommentsTextView = mRootView.findViewById(R.id.tv_comments);
         TextView postTitleTextView = mRootView.findViewById(R.id.tv_post_title);
         TextView postDescTextView = mRootView.findViewById(R.id.tv_post_desc);
@@ -427,7 +704,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         postTimeCreatedTextView.setText(DateUtils.getRelativeTimeSpanString(mPost.getTimeCreated()));
         postTitleTextView.setText(mPost.getPostTitle());
         postDescTextView.setText(mPost.getPostDesc());
-        postNumLikesTextView.setText(String.valueOf(mPost.getNumUpvotes()));
+        postnumUpvotesTextView.setText(String.valueOf(mPost.getNumUpvotes()));
         postNumCommentsTextView.setText(String.valueOf(mPost.getNumComments()));
 
 
@@ -540,9 +817,9 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         TextView usernameTextView;
         TextView timeTextView;
         TextView commentTextView;
-        TextView numLikesTextView;
+        TextView numUpvotesTextView;
         TextView numDownvotesTextView;
-        LinearLayout commentLikeLayout;
+        LinearLayout commentUpvoteLayout;
         LinearLayout commentDownvoteLayout;
 
 
@@ -553,12 +830,13 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
             usernameTextView =  mView.findViewById(R.id.tv_username);
             timeTextView = mView.findViewById(R.id.tv_time);
             commentTextView =  mView.findViewById(R.id.tv_comment);
-            numLikesTextView = mView.findViewById(R.id.comment_tv_upvotes);
+            numUpvotesTextView = mView.findViewById(R.id.comment_tv_upvotes);
             numDownvotesTextView = mView.findViewById(R.id.comment_tv_downvote);
-            commentLikeLayout = mView.findViewById(R.id.comment_like_layout);
+            commentUpvoteLayout = mView.findViewById(R.id.comment_like_layout);
             commentDownvoteLayout = mView.findViewById(R.id.comment_downvote_layout);
-            reportCommentLayout = mView.findViewById(R.id.report_comment_layout);
-            reportCommentDisplay = mView.findViewById(R.id.report_comment);
+            reportCommentLayout = mView.findViewById(R.id.comment_report_layout);
+            reportCommentDisplay = mView.findViewById(R.id.comment_iv_report);
+
         }
 
         public void setUsername(String username) {
@@ -574,7 +852,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
         }
 
         public void setCommentNumUpvotes (String numLikes) {
-            numLikesTextView.setText(numLikes);
+            numUpvotesTextView.setText(numLikes);
         }
 
         public void setCommentNumDownvotes (String numDownvotes) {
@@ -610,6 +888,8 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                                             FirebaseUtils.getCommentUpvotedRef(postId, commentId)
                                                     .setValue(null);
+                                            FirebaseUtils.getCommentUpvotedFromUserRef(commentId)
+                                                    .setValue(null);
                                         }
                                     });
                         } else {
@@ -631,6 +911,8 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                                             FirebaseUtils.getCommentUpvotedRef(postId, commentId)
                                                     .setValue(true);
+                                            FirebaseUtils.getCommentUpvotedFromUserRef(commentId)
+                                                    .setValue(true);
                                         }
                                     });
                         }
@@ -643,7 +925,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                 });
     }
 
-    private void onCommentDownvotedClick(final String postId,
+    private void onCommentDownvoteClick(final String postId,
                                          final String commentId) {
 
 
@@ -671,6 +953,8 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                                             FirebaseUtils.getCommentDownvotedRef(postId, commentId)
                                                     .setValue(null);
+                                            FirebaseUtils.getCommentDownvotedFromUserRef(commentId)
+                                                    .setValue(null);
                                         }
                                     });
                         } else {
@@ -691,6 +975,8 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                                         @Override
                                         public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                                             FirebaseUtils.getCommentDownvotedRef(postId, commentId)
+                                                    .setValue(true);
+                                            FirebaseUtils.getCommentDownvotedFromUserRef(commentId)
                                                     .setValue(true);
                                         }
                                     });

@@ -8,6 +8,51 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.fyp.discussx.ui.activities.fragments.GroupListFragment">
+
+
+        <ListView
+            android:id="@+id/group_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="56dp"
+            android:layout_toEndOf="@+id/logo_in_join_group"
+            android:layout_toRightOf="@+id/logo_in_join_group" />
+
+
+        <ImageView
+            android:id="@+id/logo_in_join_group"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_below="@+id/group_list_view"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="48dp"
+            android:src="@drawable/app_logo"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/ask_join_group"
+            android:layout_width="348dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/logo_in_join_group"
+            android:layout_centerHorizontal="true"
+            android:text="@string/ask_join_group"
+            android:textAlignment="center"
+            android:textColor="@color/sunway_blue"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            />
+    </RelativeLayout>
+
     <include
         layout="@layout/content_main"
         android:layout_width="match_parent"
@@ -21,7 +66,5 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
-
-
 
 </android.support.v4.widget.DrawerLayout>

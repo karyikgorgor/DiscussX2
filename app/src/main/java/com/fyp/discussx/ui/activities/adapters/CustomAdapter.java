@@ -47,7 +47,7 @@ public class CustomAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-       ViewHolder viewHolder;
+        ViewHolder viewHolder;
         LayoutInflater inflater = context.getLayoutInflater();
 
         if (convertView == null) {

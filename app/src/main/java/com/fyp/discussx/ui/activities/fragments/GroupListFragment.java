@@ -1,12 +1,19 @@
 package com.fyp.discussx.ui.activities.fragments;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
+import android.support.v4.app.ListFragment;
+import android.support.v4.view.MenuItemCompat;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -15,6 +22,7 @@ import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,8 +33,11 @@ import com.fyp.discussx.R;
 import com.fyp.discussx.model.Group;
 import com.fyp.discussx.model.GroupNameAndId;
 import com.fyp.discussx.model.JoinGroup;
+import com.fyp.discussx.ui.activities.CreateGroupActivity;
 import com.fyp.discussx.ui.activities.CreatePostActivity;
 import com.fyp.discussx.ui.activities.InsideGroup;
+import com.fyp.discussx.ui.activities.JoinGroupActivity;
+import com.fyp.discussx.ui.activities.MainActivity;
 import com.fyp.discussx.ui.activities.adapters.CustomAdapter;
 import com.fyp.discussx.utils.Constant;
 import com.fyp.discussx.utils.FirebaseUtils;
@@ -41,7 +52,7 @@ import java.util.List;
 import static com.facebook.FacebookSdk.getApplicationContext;
 import static com.facebook.FacebookSdk.getAutoLogAppEventsEnabled;
 
-public class GroupListFragment extends Fragment {
+public class GroupListFragment extends Fragment{
     public static final String FRAGMENT_TAG =
             BuildConfig.APPLICATION_ID + ".GROUP_LIST_FRAGMENT_TAG";
     private View mRootView;
@@ -49,11 +60,17 @@ public class GroupListFragment extends Fragment {
     private ImageView logo;
     private TextView caption;
     private CustomAdapter customAdapter;
+    private List<String> groupNameArray = new ArrayList<>();
+    private List<String> groupIdArray = new ArrayList<>();
 
-    private List <String> groupNameArray = new ArrayList<>();
-    private List <String> groupIdArray = new ArrayList<>();
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
-    public GroupListFragment () {}
+    public GroupListFragment() {
+    }
 
 
     @Override
@@ -65,75 +82,12 @@ public class GroupListFragment extends Fragment {
     }
 
 
-    private void init () {
-        groupListView = mRootView.findViewById(R.id.group_list_view);
-        logo = mRootView.findViewById(R.id.logo_in_join_group);
-        caption = mRootView.findViewById(R.id.ask_join_group);
+    private void init() {
 
-
-        if (groupIdArray.size() == 0) {
-            groupListView.setVisibility(View.GONE);
-            logo.setVisibility(View.VISIBLE);
-            caption.setVisibility(View.VISIBLE);
-
-        }
-        FirebaseUtils.getGroupJoinedFromUserRecordRef().orderByValue().addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                String groupName = dataSnapshot.getValue(String.class);
-                String groupId = dataSnapshot.getKey();
-
-                groupNameArray.add(groupName);
-                groupIdArray.add(groupId);
-
-                customAdapter = new CustomAdapter(getActivity(), groupNameArray, groupIdArray);
-
-                groupListView.setAdapter(customAdapter);
-                customAdapter.notifyDataSetChanged();
-
-                 if (groupIdArray.size() > 0){
-                    groupListView.setVisibility(View.VISIBLE);
-                    logo.setVisibility(View.GONE);
-                    caption.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        groupListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String groupNameClick = groupNameArray.get(position);
-                String groupIdClick = groupIdArray.get(position);
-
-                Intent intent = new Intent (getActivity(), InsideGroup.class);
-                intent.putExtra("groupName", groupNameClick);
-                intent.putExtra("groupId", groupIdClick);
-
-                startActivity(intent);
-            }
-        });
 
     }
+
+
+
 
 }

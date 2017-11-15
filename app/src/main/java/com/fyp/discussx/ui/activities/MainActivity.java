@@ -1,6 +1,8 @@
 package com.fyp.discussx.ui.activities;
 
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,26 +11,37 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.fyp.discussx.R;
 import com.fyp.discussx.model.User;
+import com.fyp.discussx.ui.activities.adapters.CustomAdapter;
 import com.fyp.discussx.ui.activities.fragments.GroupListFragment;
 import com.fyp.discussx.ui.activities.profile_setting.InitialProfileSetup1;
 import com.fyp.discussx.utils.BaseActivity;
 import com.fyp.discussx.utils.Constant;
 import com.fyp.discussx.utils.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -39,14 +52,20 @@ public class MainActivity extends BaseActivity
     private TextView mNameTextView;
     private TextView mEmailTextView;
     private DatabaseReference mUserRef;
+    private ListView groupListView;
+    private ImageView logo;
+    private TextView caption;
+    private CustomAdapter customAdapter;
+    private List<String> groupNameArray = new ArrayList<>();
+    private List<String> groupIdArray = new ArrayList<>();
+
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setTitle("Home");
-        addFragment(R.id.container,
-                new GroupListFragment(),
-                GroupListFragment.FRAGMENT_TAG);
+
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -65,13 +84,13 @@ public class MainActivity extends BaseActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
 
         setSupportActionBar(toolbar);
-
+        retreiveGroups();
 
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -103,8 +122,77 @@ public class MainActivity extends BaseActivity
                     });
         }
 
+    }
 
+    private void retreiveGroups () {
+        groupListView = findViewById(R.id.group_list_view);
+        logo = findViewById(R.id.logo_in_join_group);
+        caption = findViewById(R.id.ask_join_group);
 
+        if (groupIdArray.size() == 0) {
+            groupListView.setVisibility(View.GONE);
+            logo.setVisibility(View.VISIBLE);
+            caption.setVisibility(View.VISIBLE);
+
+        }
+        FirebaseUtils.getGroupJoinedFromUserRecordRef().orderByValue().addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                String groupName = dataSnapshot.getValue(String.class);
+                String groupId = dataSnapshot.getKey();
+
+                groupNameArray.add(groupName);
+                groupIdArray.add(groupId);
+
+                customAdapter = new CustomAdapter(MainActivity.this, groupNameArray, groupIdArray);
+
+                groupListView.setAdapter(customAdapter);
+                groupListView.setTextFilterEnabled(true);
+                customAdapter.notifyDataSetChanged();
+
+                if (groupIdArray.size() > 0) {
+                    groupListView.setVisibility(View.VISIBLE);
+                    logo.setVisibility(View.GONE);
+                    caption.setVisibility(View.GONE);
+                }
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        groupListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String groupNameClick = groupNameArray.get(position);
+                String groupIdClick = groupIdArray.get(position);
+
+                Intent intent = new Intent(MainActivity.this, InsideGroup.class);
+                intent.putExtra("groupName", groupNameClick);
+                intent.putExtra("groupId", groupIdClick);
+
+                startActivity(intent);
+            }
+        });
     }
 
     private void initNavHeader(View view) {
@@ -146,19 +234,18 @@ public class MainActivity extends BaseActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+
         getMenuInflater().inflate(R.menu.main, menu);
+
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_create_group) {
             Intent intent = new Intent (MainActivity.this, CreateGroupActivity.class);
             startActivity(intent);
@@ -182,11 +269,7 @@ public class MainActivity extends BaseActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.moderator_page) {
-            // Handle the camera action
-        }  else if (id == R.id.settings) {
-
-        }  else if (id == R.id.button_sign_out) {
+        if (id == R.id.button_sign_out) {
             signOut();
         }
 

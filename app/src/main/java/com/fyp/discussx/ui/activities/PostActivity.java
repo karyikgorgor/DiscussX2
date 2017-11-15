@@ -57,7 +57,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-public class PostActivity extends BaseActivity implements  NavigationView.OnNavigationItemSelectedListener {
+public class PostActivity extends BaseActivity {
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private ImageView mDisplayImageView;
     private TextView mNameTextView;
@@ -79,14 +79,6 @@ public class PostActivity extends BaseActivity implements  NavigationView.OnNavi
                 new InsidePostFragment(),
                 InsidePostFragment.FRAGMENT_TAG);
 
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null) {
-                    startActivity(new Intent(PostActivity.this, RegisterActivity.class));
-                }
-            }
-        };
 
         init();
         setContentView(R.layout.activity_post);
@@ -94,17 +86,10 @@ public class PostActivity extends BaseActivity implements  NavigationView.OnNavi
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        View navHeaderView = navigationView.getHeaderView(0);
-        initNavHeader(navHeaderView);
+        setTitle(getIntent().getExtras().getString("groupName"));
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
 
 
@@ -121,41 +106,6 @@ public class PostActivity extends BaseActivity implements  NavigationView.OnNavi
         }
     }
 
-    private void initNavHeader(View view) {
-        mDisplayImageView = (ImageView) view.findViewById(R.id.imageView_display);
-        mNameTextView = (TextView) view.findViewById(R.id.textview_name);
-        mEmailTextView = (TextView) view.findViewById(R.id.textView_email);
-
-        mUserValueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    User users = dataSnapshot.getValue(User.class);
-                    Glide.with(PostActivity.this)
-                            .load(users.getPhotoUrl())
-                            .into(mDisplayImageView);
-
-                    mNameTextView.setText(users.getUser());
-                    mEmailTextView.setText(users.getEmail());
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -184,48 +134,12 @@ public class PostActivity extends BaseActivity implements  NavigationView.OnNavi
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             finish();
             startActivity(intent);
+        }else if (item.getItemId() == android.R.id.home) {
+            this.finish();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.moderator_page) {
-            // Handle the camera action
-        }  else if (id == R.id.settings) {
-
-        } else if (id == R.id.moderator_page) {
-
-        }  else if (id == R.id.button_sign_out) {
-            Toast.makeText(this, "wtf", Toast.LENGTH_SHORT).show();
-            signOut();
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthStateListener);
-        if (mUserRef != null) {
-            mUserRef.addValueEventListener(mUserValueEventListener);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mAuthStateListener != null)
-            mAuth.removeAuthStateListener(mAuthStateListener);
-        if (mUserRef != null)
-            mUserRef.removeEventListener(mUserValueEventListener);
-    }
 }
