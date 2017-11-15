@@ -1,6 +1,8 @@
 package com.fyp.discussx.ui.activities;
 
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -91,7 +93,7 @@ public class InsideGroup extends BaseActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.inside_group_options, menu);
         return true;
     }
 
@@ -100,13 +102,16 @@ public class InsideGroup extends BaseActivity{
 
         int id = item.getItemId();
 
-        if (id == R.id.action_create_group) {
+        if (id == R.id.action_group_info) {
             Intent intent = new Intent(InsideGroup.this, CreateGroupActivity.class);
             startActivity(intent);
-        } else if (id == R.id.action_join_group) {
-            Intent intent = new Intent(InsideGroup.this, JoinGroupActivity.class);
-            startActivity(intent);
-        } else if (item.getItemId() == R.id.refresh) {
+        } else if (id == R.id.action_delete_group) {
+            deleteGroup();
+        } else if (id == R.id.action_report_group) {
+
+        }
+
+        else if (item.getItemId() == R.id.refresh) {
             Intent intent = getIntent();
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             finish();
@@ -119,5 +124,39 @@ public class InsideGroup extends BaseActivity{
         return super.onOptionsItemSelected(item);
     }
 
+
+    private void deleteGroup () {
+        String groupId = getIntent().getExtras().getString("groupId");
+
+        FirebaseUtils.getGroupCreatedRef(groupId)
+                .child("creatorId")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue(String.class).equals(FirebaseUtils.getCurrentUser().getUid())) {
+
+                        } else {
+                            AlertDialog.Builder notCreator = new AlertDialog.Builder(InsideGroup.this);
+                            notCreator.setCancelable(false);
+                            notCreator.setMessage("You are not authorised to delete this group.");
+                            notCreator.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                            AlertDialog alertDialog = notCreator.create();
+                            alertDialog.show();
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+    }
 
 }

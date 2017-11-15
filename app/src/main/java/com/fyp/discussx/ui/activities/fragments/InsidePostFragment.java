@@ -526,7 +526,7 @@ public class InsidePostFragment extends Fragment implements View.OnClickListener
                         }
                     });
         } else {
-            Toast.makeText(getActivity(), "Type something you idiot", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Please enter your comment.", Toast.LENGTH_SHORT).show();
         }
 
     }

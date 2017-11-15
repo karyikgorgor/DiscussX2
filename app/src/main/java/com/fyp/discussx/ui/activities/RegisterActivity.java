@@ -98,48 +98,73 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            User user = new User();
-                            String photoUrl = null;
-                            if (account.getPhotoUrl() != null) {
-                                user.setPhotoUrl(account.getPhotoUrl().toString());
-                            }
-
-                            user.setEmail(account.getEmail());
-                            user.setUser(account.getDisplayName());
-                            user.setUid(mAuth.getCurrentUser().getUid());
-                            user.setDob("null");
-                            user.setGender("null");
 
                             FirebaseUtils.getUserRef(account.getEmail().replace(".", ","))
-                                    .setValue(user, new DatabaseReference.CompletionListener() {
+                                    .child("email")
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
-                                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                                            mFirebaseUser = mAuth.getCurrentUser();
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            if (dataSnapshot.exists()) {
 
-                                            FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",","))
-                                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                                        @Override
-                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                            if (!dataSnapshot.hasChild(Constant.ACADEMIC_PROFILE)) {
-                                                                Intent intent = new Intent (RegisterActivity.this, InitialProfileSetup1.class);
-                                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                                startActivity(intent);
-                                                                finish();
-                                                            } else {
-                                                                Intent intent2 = new Intent (RegisterActivity.this, MainActivity.class);
-                                                                intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                                startActivity(intent2);
-                                                                finish();
+                                                Intent intent2 = new Intent (RegisterActivity.this, MainActivity.class);
+                                                intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                startActivity(intent2);
+                                                finish();
+
+                                            } else {
+                                                User user = new User();
+                                                String photoUrl = null;
+                                                if (account.getPhotoUrl() != null) {
+                                                    user.setPhotoUrl(account.getPhotoUrl().toString());
+                                                }
+
+                                                user.setEmail(account.getEmail());
+                                                user.setUser(account.getDisplayName());
+                                                user.setUid(mAuth.getCurrentUser().getUid());
+                                                user.setDob("null");
+                                                user.setGender("null");
+
+
+                                                FirebaseUtils.getUserRef(account.getEmail().replace(".", ","))
+                                                        .setValue(user, new DatabaseReference.CompletionListener() {
+                                                            @Override
+                                                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                                                mFirebaseUser = mAuth.getCurrentUser();
+
+                                                                FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",","))
+                                                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                            @Override
+                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                if (!dataSnapshot.hasChild(Constant.ACADEMIC_PROFILE)) {
+                                                                                    Intent intent = new Intent (RegisterActivity.this, InitialProfileSetup1.class);
+                                                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                                                    startActivity(intent);
+                                                                                    finish();
+                                                                                } else {
+                                                                                    Intent intent2 = new Intent (RegisterActivity.this, MainActivity.class);
+                                                                                    intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                                                    startActivity(intent2);
+                                                                                    finish();
+                                                                                }
+                                                                            }
+
+                                                                            @Override
+                                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                                            }
+                                                                        });
                                                             }
-                                                        }
+                                                        });
+                                            }
+                                        }
 
-                                                        @Override
-                                                        public void onCancelled(DatabaseError databaseError) {
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
 
-                                                        }
-                                                    });
                                         }
                                     });
+
+
                         } else {
                             dismissProgressDialog();
                         }

@@ -104,14 +104,47 @@ public class JoinGroupActivity extends AppCompatActivity {
 
         groupListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String groupNameClick = groupNameArray.get(position);
-                String groupIdClick = groupIdArray.get(position);
-                joinGroup(groupIdClick, groupNameClick);
+            public void onItemClick(AdapterView<?> parent, View view,  int position, long id) {
+                final String groupNameClick = groupNameArray.get(position);
+                final String groupIdClick = groupIdArray.get(position);
+
+
+                FirebaseUtils.getGroupJoinedFromUserRecordRef()
+                        .child(groupIdClick)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.exists()) {
+                                        AlertDialog.Builder notCreator = new AlertDialog.Builder(JoinGroupActivity.this);
+                                        notCreator.setCancelable(false);
+                                        notCreator.setMessage("You have already joined this group.");
+                                        notCreator.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                        notCreator.create().show();
+
+                                    } else  {
+                                        joinGroup(groupIdClick, groupNameClick);
+                                    }
+
+
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
             }
         });
 
     }
+
 
     private void joinGroup (final String groupId, final String groupName) {
 
@@ -140,31 +173,29 @@ public class JoinGroupActivity extends AppCompatActivity {
                         joinGroupInfo.setGroupName(groupName);
 
 
-                                        FirebaseUtils.getGroupCreatedRef(groupId).child(Constant.GROUP_MEMBER).child(memberId).setValue(joinGroupInfo);
+                        FirebaseUtils.getGroupCreatedRef(groupId).child(Constant.GROUP_MEMBER).child(memberId).setValue(joinGroupInfo);
 
-                                        FirebaseUtils.getGroupCreatedRef().child(groupId)
-                                                .child(Constant.NUM_MEMBERS_KEY)
-                                                .runTransaction(new Transaction.Handler() {
-                                                        @Override
-                                                        public Transaction.Result doTransaction(MutableData mutableData) {
-                                                            long num = (long) mutableData.getValue();
-                                                            mutableData.setValue(num + 1);
-                                                            return Transaction.success(mutableData);
-                                                        }
+                        FirebaseUtils.getGroupCreatedRef().child(groupId)
+                                .child(Constant.NUM_MEMBERS_KEY)
+                                .runTransaction(new Transaction.Handler() {
+                                    @Override
+                                    public Transaction.Result doTransaction(MutableData mutableData) {
+                                        long num = (long) mutableData.getValue();
+                                        mutableData.setValue(num + 1);
+                                        return Transaction.success(mutableData);
+                                    }
 
-                                                    @Override
-                                                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                                                        FirebaseUtils.addRecord(Constant.GROUP_JOINED_KEY, groupId, groupName);
-                                                        progressDialog.dismiss();
+                                    @Override
+                                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                                        FirebaseUtils.addRecord(Constant.GROUP_JOINED_KEY, groupId, groupName);
+                                        progressDialog.dismiss();
 
-                                                        Intent intent = new Intent (JoinGroupActivity.this, MainActivity.class);
-                                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                        startActivity(intent);
-                                                        finish();
-                                                    }
-                                                });
-
-
+                                        Intent intent = new Intent (JoinGroupActivity.this, MainActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                });
                     }
                 }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
             @Override

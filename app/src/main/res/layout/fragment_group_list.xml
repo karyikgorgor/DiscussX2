@@ -21,19 +21,19 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="48dp"
         android:src="@drawable/app_logo"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        />
 
     <TextView
         android:id="@+id/ask_join_group"
         android:layout_width="348dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/logo_in_join_group"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="64dp"
         android:text="@string/ask_join_group"
         android:textAlignment="center"
         android:textColor="@color/sunway_blue"
-        android:textSize="30sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         android:visibility="gone"
         />

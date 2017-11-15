@@ -4,7 +4,10 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,6 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 public class CreateGroupActivity extends AppCompatActivity {
     private EditText groupNameEditText;
     private Button btnCreateGroup;
+    private Button btnCollapse;
     private Group mGroup;
     private JoinGroup joinGroup;
 
@@ -36,8 +40,27 @@ public class CreateGroupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_group);
 
+        setTitle("Create A Discussion Group");
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         groupNameEditText = findViewById(R.id.group_name_et);
         btnCreateGroup = findViewById(R.id.btn_create_group);
+        btnCollapse = findViewById(R.id.btn_collapse);
+
+        btnCollapse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                groupNameEditText.setVisibility(View.VISIBLE);
+                btnCreateGroup.setVisibility(View.VISIBLE);
+                btnCollapse.setVisibility(View.GONE);
+            }
+        });
 
         btnCreateGroup.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,6 +69,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
             }
         });
+
 
     }
 
@@ -108,121 +132,20 @@ public class CreateGroupActivity extends AppCompatActivity {
     }
 
 
-   /* private void createGroup () {
-        final String groupNameString = groupNameEditText.getText().toString();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_initial_profile_setup, menu);
+        return true;
+    }
 
-        if (!TextUtils.isEmpty(groupNameString)) {
-            final ProgressDialog progressDialog = new ProgressDialog(CreateGroupActivity.this);
-            progressDialog.setMessage("Creating group..");
-            progressDialog.setCancelable(true);
-            progressDialog.setIndeterminate(true);
-            progressDialog.show();
-
-            Group mGroup = new Group();
-            JoinGroup joinGroup = new JoinGroup();
-
-            final String uid = FirebaseUtils.getUid();
-
-            mGroup.setGroupName(groupNameString);
-            mGroup.setTimeCreated(System.currentTimeMillis());
-            mGroup.setCreatorId(FirebaseUtils.getCurrentUser().getUid());
-            mGroup.setCreatorName(FirebaseUtils.getCurrentUser().getDisplayName());
-
-            joinGroup.setMembersId(FirebaseUtils.getCurrentUser().getUid());
-            joinGroup.setEmail(FirebaseUtils.getCurrentUser().getEmail());
-            joinGroup.setUserName(FirebaseUtils.getCurrentUser().getDisplayName());
-            joinGroup.setTimeJoined(System.currentTimeMillis());
-
-
-            FirebaseUtils.getGroupCreatedRef().child(uid).setValue(mGroup);
-
-            FirebaseUtils.getGroupCreatedRef().child(uid)
-                    .child(Constant.GROUP_MEMBER)
-                    .child(FirebaseUtils.getCurrentUser().getUid())
-                    .setValue(joinGroup);
-
-            FirebaseUtils.addGroupIdAndName(uid, groupNameString);
-
-            FirebaseUtils.getGroupCreatedRef().child(uid)
-                    .child(Constant.NUM_MEMBERS_KEY)
-                    .runTransaction(new Transaction.Handler() {
-                        @Override
-                        public Transaction.Result doTransaction(MutableData mutableData) {
-                            long num = (long) mutableData.getValue();
-                            mutableData.setValue(num + 1);
-                            return Transaction.success(mutableData);
-                        }
-
-                        @Override
-                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                            FirebaseUtils.addRecord(Constant.GROUP_CREATED_KEY, uid, groupNameString);
-                            FirebaseUtils.addRecord(Constant.GROUP_JOINED_KEY, uid, groupNameString);
-                            progressDialog.dismiss();
-                        }
-                    });
-        } else {
-            Toast.makeText(this, "Please make sure you have entered a group name.", Toast.LENGTH_SHORT).show();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            this.finish();
+            return true;
         }
 
-
-    }*/
-
-   /* private void createGroup () {
-        if (!TextUtils.isEmpty(groupNameEditText.getText().toString())) {
-
-            mGroup = new Group();
-            joinGroup = new JoinGroup();
-            final String uid = FirebaseUtils.getUid();
-
-            mGroup.setGroupId(uid);
-            mGroup.setGroupName(groupNameEditText.getText().toString());
-            mGroup.setTimeCreated(System.currentTimeMillis());
-            mGroup.setCreator(FirebaseUtils.getCurrentUser().getUid());
-            mGroup.setNumMembers(0);
-            joinGroup.setMembersId(FirebaseUtils.getCurrentUser().getUid());
-            joinGroup.setTimeJoined(System.currentTimeMillis());
-            joinGroup.setEmail(FirebaseUtils.getCurrentUser().getEmail());
-            joinGroup.setUserName(FirebaseUtils.getCurrentUser().getDisplayName());
-            joinGroup.setGroupName(groupNameEditText.getText().toString());
-
-
-            FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",","))
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            User user = dataSnapshot.getValue(User.class);
-                            FirebaseUtils.getGroupCreatedRef(uid).setValue(mGroup);
-                            FirebaseUtils.getGroupCreatedRef(uid).child(Constant.GROUP_MEMBER).child(FirebaseUtils.getCurrentUser().getUid()).setValue(joinGroup);
-                            FirebaseUtils.addGroupIdAndName(uid, groupNameEditText.getText().toString());
-
-
-                            FirebaseUtils.getGroupCreatedRef().child(uid)
-                                    .child(Constant.NUM_MEMBERS_KEY)
-                                    .runTransaction(new Transaction.Handler() {
-                                        @Override
-                                        public Transaction.Result doTransaction(MutableData mutableData) {
-                                            long num = (long) mutableData.getValue();
-                                            mutableData.setValue(num + 1);
-                                            return Transaction.success(mutableData);
-                                        }
-
-                                        @Override
-                                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                                            FirebaseUtils.addRecord(Constant.GROUP_CREATED_KEY,uid,groupNameEditText.getText().toString());
-                                            FirebaseUtils.addRecord(Constant.GROUP_JOINED_KEY,uid,groupNameEditText.getText().toString());
-
-                                        }
-                                    });
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-        }
-
-
-    }*/
+        return super.onOptionsItemSelected(item);
+    }
 
 }

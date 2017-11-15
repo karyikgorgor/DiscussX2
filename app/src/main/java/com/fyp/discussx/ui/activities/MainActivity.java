@@ -43,7 +43,7 @@ public class MainActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setTitle("Joined Groups");
+        setTitle("Home");
         addFragment(R.id.container,
                 new GroupListFragment(),
                 GroupListFragment.FRAGMENT_TAG);
@@ -81,25 +81,25 @@ public class MainActivity extends BaseActivity
         initNavHeader(navHeaderView);
     }
 
-    private void init() {
-        if (mFirebaseUser != null) {
-            mUserRef = FirebaseUtils.getUserRef(mFirebaseUser.getEmail().replace(".", ","));
+                        private void init() {
+                            if (mFirebaseUser != null) {
+                                mUserRef = FirebaseUtils.getUserRef(mFirebaseUser.getEmail().replace(".", ","));
 
-            FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",","))
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (!dataSnapshot.hasChild(Constant.ACADEMIC_PROFILE)) {
-                                Intent intent = new Intent (MainActivity.this, InitialProfileSetup1.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                        }
+                                FirebaseUtils.getUserRef(FirebaseUtils.getCurrentUser().getEmail().replace(".",","))
+                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                if (!dataSnapshot.hasChild(Constant.ACADEMIC_PROFILE)) {
+                                                    Intent intent = new Intent (MainActivity.this, InitialProfileSetup1.class);
+                                                    startActivity(intent);
+                                                    finish();
+                                                }
+                                            }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
 
-                        }
+                                            }
                     });
         }
 
@@ -186,10 +186,7 @@ public class MainActivity extends BaseActivity
             // Handle the camera action
         }  else if (id == R.id.settings) {
 
-        } else if (id == R.id.moderator_page) {
-
         }  else if (id == R.id.button_sign_out) {
-            Toast.makeText(this, "wtf", Toast.LENGTH_SHORT).show();
             signOut();
         }
 

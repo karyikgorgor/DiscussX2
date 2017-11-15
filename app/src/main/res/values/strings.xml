@@ -30,5 +30,26 @@
     <string name="profile_success_setup">Your profile is successfully set up!</string>
     <string name="create_group">Create Discussion Group</string>
     <string name="join_group">Join Discussion Group</string>
-    <string name="ask_join_group">Looks like you haven\'t joined any groups. You may create one or join one by clicking the option button at the top right corner.</string>
+    <string name="ask_join_group">Looks like you haven\'t joined any discussion groups. You may create one or join one by clicking the option button at the top right corner.</string>
+
+    <string name="create_group_rules">By clicking NEXT, you agree to the following terms:</string>
+    <string name="create_group_rules1">1. You are allowed to create only one group per day. The maximum amount of discussion groups that can be created by a single user is 10.</string>
+    <string name="create_group_rules2">2. Inappropriate wording and profanity are strictly forbidden for the naming of the discussion groups.
+        Warning will be given for the user\'s first and second offence. Third offence will not be tolerated, the
+        related discussion group(s) and user(s) will be banned permanently.</string>
+    <string name="create_group_rules3">3. As the creator of the discussion group(s), you are NOT ALLOWED to utilise the discussion group(s)
+    as a platform for sharing/spreading/creating inappropriate content, that includes PROFANITIES, PORNOGRAPHIC MATERIAL, HYPERLINKS THAT LINK TO TE SITES
+    THAT ENCOURAGE VANDALISM, CRIME, TERRORISM, RACISM, SUICIDE AND OTHERS, GAMBLING SITES, AND OTHER CONTENT WHICH MAY BRING NEGATIVE INFLUENCE
+    TO OTHER USERS. 7-days ban, 30-days ban, and permanent ban will be given to first offence, second offence, and third offence respectively.  </string>
+    <string name="collapse">NEXT</string>
+    <string name="create">CREATE</string>
+
+    <string name="refresh">Refresh</string>
+    <string name="action_create_group">Create Group</string>
+    <string name="action_join_group">Join Group</string>
+    <string name="action_report_group">Report Group</string>
+    <string name="action_group_info">Group Info</string>
+    <string name="action_quit_group">Quit Group</string>
+    <string name="action_delete_group">Delete Group</string>
+
 </resources>

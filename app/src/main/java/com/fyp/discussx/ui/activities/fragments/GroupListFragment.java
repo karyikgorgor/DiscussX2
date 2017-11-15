@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -70,6 +71,12 @@ public class GroupListFragment extends Fragment {
         caption = mRootView.findViewById(R.id.ask_join_group);
 
 
+        if (groupIdArray.size() == 0) {
+            groupListView.setVisibility(View.GONE);
+            logo.setVisibility(View.VISIBLE);
+            caption.setVisibility(View.VISIBLE);
+
+        }
         FirebaseUtils.getGroupJoinedFromUserRecordRef().orderByValue().addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -80,24 +87,16 @@ public class GroupListFragment extends Fragment {
                 groupNameArray.add(groupName);
                 groupIdArray.add(groupId);
 
-                if (groupIdArray.size() == 0) {
-                    groupListView.setVisibility(View.GONE);
-                    logo.setVisibility(View.VISIBLE);
-                    caption.setVisibility(View.VISIBLE);
-
-                } else if (groupIdArray.size() > 0){
-                    groupListView.setVisibility(View.VISIBLE);
-                    logo.setVisibility(View.GONE);
-                    caption.setVisibility(View.GONE);
-                }
-
-
                 customAdapter = new CustomAdapter(getActivity(), groupNameArray, groupIdArray);
 
                 groupListView.setAdapter(customAdapter);
                 customAdapter.notifyDataSetChanged();
 
-
+                 if (groupIdArray.size() > 0){
+                    groupListView.setVisibility(View.VISIBLE);
+                    logo.setVisibility(View.GONE);
+                    caption.setVisibility(View.GONE);
+                }
             }
 
             @Override
